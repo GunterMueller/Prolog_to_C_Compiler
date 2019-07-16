@@ -1,0 +1,17 @@
+main :-
+	Y = 3,
+	X1 is Y + 2, display(X1), nl,
+	X2 is Y - 2, display(X2), nl,
+	X3 is Y * 2, display(X3), nl,
+	X4 is Y / 2, display(X4), nl,
+	X5 is Y // 2, display(X5), nl,
+	(X1 =:= Y -> display('yes\n'); display('no\n')),
+	(X1 =:= X1 -> display('yes\n'); display('no\n')),
+	(X1 =\= Y -> display('yes\n'); display('no\n')),
+	(X1 =\= X1 -> display('yes\n'); display('no\n')),
+	(X1 > Y -> display('yes\n'); display('no\n')),
+	(X1 < Y -> display('yes\n'); display('no\n')),
+	(X1 >= Y -> display('yes\n'); display('no\n')),
+	(X1 >= X1 -> display('yes\n'); display('no\n')),
+	(X1 =< Y -> display('yes\n'); display('no\n')),
+	(X1 =< X1 -> display('yes\n'); display('no\n')).

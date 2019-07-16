@@ -1,0 +1,5 @@
+#!/bin/bash
+
+"$2" -n -q tests/edcg.pl -o tmp/edcg.c
+gcc $3 tmp/edcg.c -o tmp/edcg -lm -lrt
+tmp/edcg <tests/edcg-test.pl >tmp/edcg-test.pl

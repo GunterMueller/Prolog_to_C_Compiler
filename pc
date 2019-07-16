@@ -1,0 +1,2 @@
+#!/bin/sh
+exec swipl -q -s all.pl -- $@

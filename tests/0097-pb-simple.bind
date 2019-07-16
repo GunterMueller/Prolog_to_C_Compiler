@@ -1,0 +1,14 @@
+/* test */
+
+#include <unistd.h>
+#include <errno.h>
+
+#define aMacro  \
+  ok  \   
+  not ok
+
+
+int errno;
+double modf(double, /* out */ double *);
+
+char *getcwd(void *, int);

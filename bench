@@ -1,0 +1,94 @@
+#!/usr/bin/env tclsh
+### run benchmark -*- Tcl -*-
+
+
+set opts "-O1 -fomit-frame-pointer -fno-strict-aliasing -fwrapv -DNDEBUG"
+set fast_opts "-DUNSAFE -O3 -fomit-frame-pointer -fno-strict-aliasing -fwrapv -fno-trapping-math -ffast-math -DNO_CHECK_CYCLES"
+set filename ""
+set args {}
+set bench_compile_times 0
+
+
+proc Usage {} {
+    puts stderr "usage: bench [-h] [-ct] [-fast] FILENAME [ARGUMENT ...]"
+    exit
+}
+
+for {set i 0} {$i < $argc} {incr i} {
+    set arg [lindex $argv $i]
+
+    switch -- $arg {
+	-h Usage
+	-ct { set bench_compile_times 1 }
+	-fast { set opts $fast_opts }
+	default {
+	    set filename $arg
+	    set args [lrange $argv $i end]
+	    break
+	}
+    }
+}
+
+if {$filename == ""} {
+    puts "missing filename"
+    exit 1
+}
+
+if {![file exists $filename]} {
+    puts "no such file"
+    exit 1
+}
+
+set tmpname [exec mktemp --tmpdir bench-XXXXXX]
+set cfile "$tmpname.c"
+set rfile [file rootname $filename]
+set optfile "${rfile}.opts"
+set xfile $tmpname
+set rtmp "$tmpname.out"
+
+
+proc RunOnce {} {
+    global args xfile rtmp cfile
+
+    if {[catch {eval exec /usr/bin/time -f %U -o $rtmp $xfile $args > /dev/null} result]} {
+	puts stderr $result
+	exit 1
+    }
+
+    set f [open $rtmp r]
+    set tm [read -nonewline $f]
+    close $f
+    file delete -force $rtmp
+    return $tm
+}
+
+if {[catch {exec ./pc -q -n $filename -o $cfile >&@ stdout} result]} {
+    puts stderr $result
+    file delete -force $rtmp $cfile $tmpname
+    exit 1
+}
+
+if {[file exists $optfile]} {
+    set f [open $optfile r]
+    eval lappend opts [read -nonewline $f]
+    close $f
+}
+
+if {$bench_compile_times} {
+    eval exec /usr/bin/time -f %U gcc -std=gnu99 -Ilib -I. $opts $cfile -o $xfile -lm -lrt >&@ stdout
+    file delete -force $rtmp $tmpname $cfile
+    exit
+} else {
+    eval exec gcc -std=gnu99 -Ilib -I. $opts $cfile -o $xfile -lm -lrt >&@ stdout
+}
+
+set results {}
+
+for {set i 0} {$i < 5} {incr i} {
+    set r [RunOnce]
+    lappend results $r
+}
+
+lassign [lsort -real $results] _ a b c
+puts [expr ($a + $b + $c) / 3]
+file delete -force $rtmp $tmpname $cfile

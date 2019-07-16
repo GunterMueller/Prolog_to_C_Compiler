@@ -1,0 +1,126 @@
+#!/usr/bin/env bltwish
+### show graph of benchmark results -*- Tcl -*-
+
+
+package require BLT
+
+
+blt::barchart .g
+
+set programs {}
+set modes {}
+set filename "benchmarks/benchmarks.txt"
+
+if {$argc > 0} {
+    set arg [lindex $argv 0]
+    
+    if {[regexp {^-\w+} $arg]} {
+	set filename "benchmarks/benchmarks$arg.txt"
+    } else {
+	set filename $arg
+    }
+}
+
+set f [open $filename r]
+set prg 0
+set pi 0
+set mi -1
+
+while {![eof $f]} {
+    set line [gets $f]
+
+    switch -regexp $line {
+	{^-+$} {
+	    gets $f
+	    set line [gets $f]
+	    set mode $line
+	    lappend modes $mode
+	}
+	{^\s*$} {}
+	{^\s*(\d|\.)+$} {
+	    lappend counts_$mode $line
+	}
+	default {
+	    set prg [file rootname [file tail $line]]
+
+	    if {[lsearch -exact $programs $prg] == -1} {
+		lappend programs $prg
+	    }
+	}
+    }
+}
+
+close $f
+
+set xdata {}
+set x 0
+set colors {
+azure              
+BlanchedAlmond     
+blue               
+brown              
+burlywood          
+CadetBlue          
+chartreuse         
+chocolate          
+coral              
+CornflowerBlue     
+cornsilk           
+cyan               
+DarkBlue           
+DarkCyan           
+DarkGoldenrod      
+DarkGray           
+DarkGreen          
+DarkGrey           
+DarkKhaki          
+DarkMagenta        
+DarkOliveGreen     
+DarkOrange         
+DarkOrchid         
+DarkRed            
+DarkSalmon         
+DarkSlateGray      
+DarkTurquoise      
+DarkViolet         
+DeepPink           
+DeepSkyBlue        
+DimGrey            
+DodgerBlue         
+firebrick          
+ForestGreen        
+gainsboro          
+gold               
+goldenrod          
+}
+
+foreach program $programs {
+    lappend xdata $x
+    incr x
+}
+
+set c 0
+
+foreach mode $modes {
+    upvar 0 counts_$mode counts
+    set color [lindex $colors $c]
+    .g element create $mode -label $mode -xdata $xdata -ydata $counts -foreground $color
+    incr c
+}
+
+bind . <Escape> exit
+bind . <Control-c> exit
+
+pack .g
+pack configure .g -expand 1 -fill both
+
+proc ProgramName {bc tick} {
+    global programs
+    return [lindex $programs $tick]
+}
+
+.g configure -barmode aligned
+.g legend configure -position plotarea -anchor nw
+.g yaxis configure -title "Time (s)" -titlefont fixed-16 -subdivisions 10
+.g xaxis configure -rotate 90 -title Programs -command ProgramName -tickfont fixed-12 -titlefont fixed-16 \
+    -subdivisions 0

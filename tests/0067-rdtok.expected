@@ -1,0 +1,2 @@
+[atom(main),atom((:-)),atom(see),(,atom(tests/0067-rdtok.pl),),(,),atom(read_tokens),(,var(_274,TOKS),(,),var(_331,VARS),),(,),atom(write),(,var(_274,TOKS),),(,),atom(nl),(,),atom(write),(,var(_331,VARS),),(,),atom(nl),(,),atom(seen)]
+[TOKS = _274,VARS = _331]

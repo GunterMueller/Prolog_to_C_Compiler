@@ -1,0 +1,77 @@
+----------------------------------------
+Wed Apr  8 15:18:41 CEST 2015
+d15dded (using -O1 -fschedule-insns2)
+benchmarks/0001-ecrc-call.pl
+2.02
+benchmarks/0002-ecrc-cp+backtrack.pl
+2.14
+benchmarks/0003-ecrc-index.pl
+1.58
+benchmarks/0004-ecrc-deref.pl
+1.61
+benchmarks/0005-ecrc-cut.pl
+1.53
+benchmarks/0006-self-compile.pl
+40.20
+benchmarks/0007-pi.pl
+56.82
+benchmarks/0008-ecrc-envs.pl
+1.70
+benchmarks/0009-ecrc-unify.pl
+4.74
+benchmarks/0010-int-index.pl
+0.82
+benchmarks/0011-atom-index.pl
+0.84
+----------------------------------------
+Sun Apr 12 22:09:21 CEST 2015
+7d02de2 (dropping -fschedule-insns2)
+benchmarks/0001-ecrc-call.pl
+1.88
+benchmarks/0002-ecrc-cp+backtrack.pl
+2.01
+benchmarks/0003-ecrc-index.pl
+1.52
+benchmarks/0004-ecrc-deref.pl
+1.50
+benchmarks/0005-ecrc-cut.pl
+1.47
+benchmarks/0006-self-compile.pl
+39.92
+benchmarks/0007-pi.pl
+56.01
+benchmarks/0008-ecrc-envs.pl
+1.63
+benchmarks/0009-ecrc-unify.pl
+4.66
+benchmarks/0010-int-index.pl
+0.82
+benchmarks/0011-atom-index.pl
+0.82
+----------------------------------------
+Fri May  8 14:40:11 CEST 2015
+b00a85a (dce)
+benchmarks/0001-ecrc-call.pl
+1.57
+benchmarks/0002-ecrc-cp+backtrack.pl
+1.64
+benchmarks/0003-ecrc-index.pl
+1.11
+benchmarks/0004-ecrc-deref.pl
+1.12
+benchmarks/0005-ecrc-cut.pl
+1.03
+benchmarks/0006-self-compile.pl
+44.89
+benchmarks/0007-pi.pl
+74.08
+benchmarks/0008-ecrc-envs.pl
+1.28
+benchmarks/0009-ecrc-unify.pl
+4.10
+benchmarks/0010-int-index.pl
+0.40
+benchmarks/0011-atom-index.pl
+0.46
+benchmarks/0012-read.pl
+2.99

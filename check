@@ -1,0 +1,116 @@
+#!/usr/bin/env tclsh
+### compile + run with timeout, then check status and output -*- Tcl -*-
+
+set opts "-g -DDEBUG_GC"
+set moreopts ""
+set filename ""
+set args ""
+set check_pc "./pc"
+set pi 0
+
+
+for {set i 0} {$i < $argc} {incr i} {
+    set x [lindex $argv $i]
+    switch $x {
+	-pc {
+	    incr i
+	    set check_pc [lindex $argv $i]
+	}
+	-O {set opts "-O1 -fomit-frame-pointer -fno-strict-aliasing -fwrapv -fschedule-insns2"}
+	-m32 {set moreopts "$moreopts -m32"}
+	-i {set pi 1}
+	default {
+	    set filename $x
+	    set args [lrange $argv [expr $i + 1] $argc] 
+	    break
+	}
+    }
+}
+
+if {! [file exists $filename]} {
+    puts stderr "no such file"
+    exit 1
+}
+
+set bfile [file tail $filename]
+set rfile [file rootname $bfile]
+set xfile "tmp/${rfile}"
+set cfile "${xfile}.c"
+set outfile "${xfile}.out"
+set file1 [file rootname $filename]
+
+if {[file exists "${file1}.timeout"]} {
+    set tfile [open "${file1}.timeout" r]
+    set timeout [read -nonewline $tfile]
+    close $tfile
+} else {
+    set timeout 3
+}
+
+set expstatus 0
+set message "terminated with non-zero exit status"
+set expfile "${file1}.expected"
+
+if {[file exists $expfile] == 0} {
+    if {[file exists "${file1}.expected-fail"]} {
+	set expfile "${file1}.expected-fail"
+	set expstatus CHILDSTATUS
+	set message "expected to fail, but terminated with exit status"
+    } elseif {[file exists "${file1}.expected-timeout"]} {
+	set expfile "${file1}.expected-timeout"
+	set message "did not reach timeout"
+	set expstatus CHILDKILLED
+    } else {
+	set expfile 0
+    }
+}
+
+set setupfile "${file1}.setup"
+
+if {[file exists $setupfile]} {
+    # called with testname, pc and C optimizations and whether pi is used
+    if {[catch {exec bash $setupfile $rfile $check_pc "-std=gnu99 -I. -Ilib $opts $moreopts" $pi} result]} {
+	puts stderr $result
+	exit 1
+    }
+}
+
+if {$pi == 0} {
+    if {[catch {exec $check_pc -n -q $filename -o $cfile >&@ stdout} result]} {
+	puts stderr $result
+	exit 1
+    }
+
+    if {[catch {eval exec gcc -std=gnu99 -Ilib -I. $cfile $opts $moreopts \
+		    -o $xfile -lm -lrt >&@ stdout} result] } {
+	puts stderr $result
+	exit 1
+    }
+}
+
+if {$pi} {
+    set cmd {exec ./timeout -t $timeout ./pi -n -i main $filename > $outfile 2>@ stderr}
+} else {
+    set cmd {exec ./timeout -t $timeout "./${xfile}" > $outfile 2>@ stderr}
+}
+    
+if {[catch $cmd]} {
+    set status [lindex $errorCode 0]
+} else {
+    set status 0
+}
+
+if {$status != $expstatus} {
+    exec cat $outfile >@ stdout
+    puts $message
+    exit 1
+}
+
+if {$expfile != 0 && [file exists $expfile]} {
+    if {[catch {exec diff -u $expfile $outfile >@ stdout}]} {
+	puts "output differs from expected output"
+	exit 1
+    }
+} else {
+    exec cat $outfile
+}

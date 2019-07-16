@@ -1,0 +1,158 @@
+diff --git a/pc.h b/pc.h
+index 7c85be6..221ec2a 100644
+--- a/pc.h
++++ b/pc.h
+@@ -192,6 +192,7 @@ typedef struct CHOICE_POINT {
+   void *P;
+   struct CATCHER *catch_top;
+   XWORD timestamp;
++  X *alloc_top;
+ #if defined(PROFILE) || defined(PROFILE_MEMORY)
+   struct PINFO *where;
+ #endif
+@@ -485,6 +486,8 @@ static int gc_caused_by_trailing = 0;
+ static X triggered_frozen_goals;
+ static X first_distinct_variable;
+ static X *cycle_stack, *cycle_stack_top;
++static int fast_gc;
++static XWORD fast_dealloc = 0;
+ 
+ #if defined(PROFILE) || defined(PROFILE_MEMORY)
+ static PINFO system_pinfo = { .name = "<system>", .next = NULL };
+@@ -608,7 +611,11 @@ static XCHAR *type_names[] = {
+ #define is_POINTER(x)  is(POINTER_TYPE, (x))
+ 
+ #define GLOBAL_REF(index)  global_variables[ index ]
+-#define GLOBAL_SET(index, x)  global_variables[ index ] = deref(x)
++
++#define GLOBAL_SET(index, x)			\
++  { X x_ = (x);					\
++  global_variables[ index ] = deref(x_);	\
++  if(IS_IN_HEAP(x_)) fast_gc = 0; }
+ 
+ #define string_length(x)  ((objsize(x) / sizeof(XCHAR)) - 1)
+ 
+@@ -1021,6 +1028,7 @@ static X intern(X name)
+ 
+   X oldsym = symbol_table[ key ];
+   X sym = SYMBOL(name, oldsym, word_to_fixnum(hash));
++  fast_gc = 0;
+   symbol_table[ key ] = sym;
+   return sym;
+ }
+@@ -1398,6 +1406,7 @@ static void unwind_trail(X *tp)
+ static inline void force_gc()
+ {
+   alloc_top = fromspace_limit + 1; /* trigger GC on next check */
++  fast_gc = 0;
+ }
+ 
+ 
+@@ -2167,7 +2176,8 @@ static void collect_garbage(CHOICE_POINT *C)
+   DRIBBLE(gc_caused_by_trailing ? "[GC (due to trailing) ... " : "[GC ... ");
+   gc_caused_by_trailing = 0;
+   tospace_top = tospace; 
+-  scan_ptr = tospace_top;				
++  scan_ptr = tospace_top;
++  fast_gc = 1;
+ 
+   // clear ref-counts of all deleted DB items
+   for(DB_ITEM *item = deleted_db_items; item != NULL; item = item->next_deleted)
+@@ -2299,6 +2309,7 @@ static void collect_garbage(CHOICE_POINT *C)
+   }
+ 
+   // now adjust trail-ptrs in choice-point stack
++  // also clear alloc_top-slots in CPs
+   int ts_shift = 0;
+   TRAIL_STACK_GAP *gp2 = trail_stack_gap_buffer;
+ 
+@@ -2309,6 +2320,7 @@ static void collect_garbage(CHOICE_POINT *C)
+     }
+ 
+     cp->T -= ts_shift;
++    cp->alloc_top = NULL;
+   }
+ 
+   // do the same for trail-ptrs in catcher-stack
+@@ -2852,11 +2864,13 @@ static void terminate(CHOICE_POINT *C, int code)
+   }
+ 
+   DRIBBLE("[terminating - T: " XWORD_OUTPUT_FORMAT ", C: " XWORD_OUTPUT_FORMAT
+-	  ", A: " XWORD_OUTPUT_FORMAT ", E: " XWORD_OUTPUT_FORMAT "]\n",
++	  ", A: " XWORD_OUTPUT_FORMAT ", E: " XWORD_OUTPUT_FORMAT ", fast dealloc: "
++	  XWORD_OUTPUT_FORMAT "]\n",
+ 	  (XWORD)trail_top - (XWORD)trail_stack,
+ 	  (XWORD)C - (XWORD)choice_point_stack,
+ 	  (XWORD)arg_top - (XWORD)argument_stack,
+-	  (XWORD)env_top - (XWORD)environment_stack);
++	  (XWORD)env_top - (XWORD)environment_stack,
++	  fast_dealloc);
+   cleanup();
+   exit(code);
+ }
+@@ -4037,6 +4051,7 @@ static inline FILE *get_output_port(X s) { return port_file(get_output_stream(s)
+     C->R = R;							\
+     C->E = E;							\
+     C->A = A;							\
++    C->alloc_top = alloc_top;					\
+     C->timestamp = clock_ticks++;				\
+     C->arg_top = arg_top;					\
+     C->env_top = env_top;					\
+@@ -4052,6 +4067,7 @@ static inline FILE *get_output_port(X s) { return port_file(get_output_stream(s)
+     C->R = C0->R;							\
+     C->E = E;								\
+     C->A = C0->A;							\
++    C->alloc_top = alloc_top;						\
+     C->timestamp = clock_ticks++;					\
+     C->arg_top = arg_top;						\
+     C->env_top = env_top;						\
+@@ -4086,18 +4102,21 @@ static inline FILE *get_output_port(X s) { return port_file(get_output_stream(s)
+     arg_top = *(--ifthen_top);						\
+     ASSERT(ifthen_top >= ifthen_stack, "if-then stack underflow"); }
+ 
+-#define INVOKE_CHOICE_POINT			\
+-  { for(C0 = C - 1; C0->P == NULL; --C0) {	\
+-      SET_WHERE(C0->where);			\
+-      PROFILE_COUNTS;				\
+-      E = C0->E;				\
+-      env_top = C0->env_top; }			\
+-    C = C0 + 1;					\
+-    unwind_trail(C0->T);			\
+-    A = C0->A;					\
+-    arg_top = C0->arg_top;			\
+-    catch_top = C0->catch_top;			\
+-    SET_WHERE(C0->where);			\
++#define INVOKE_CHOICE_POINT						\
++  { for(C0 = C - 1; C0->P == NULL; --C0) {				\
++      SET_WHERE(C0->where);						\
++      PROFILE_COUNTS;							\
++      E = C0->E;							\
++      if(fast_gc && C0->alloc_top) {					\
++	fast_dealloc += (XWORD)alloc_top - (XWORD)C0->alloc_top;	\
++	alloc_top = C0->alloc_top; }					\
++      env_top = C0->env_top; }						\
++    C = C0 + 1;								\
++    unwind_trail(C0->T);						\
++    A = C0->A;								\
++    arg_top = C0->arg_top;						\
++    catch_top = C0->catch_top;						\
++    SET_WHERE(C0->where);						\
+     goto *(C0->P); }
+ 
+ #define POP_CHOICE_POINT  \
+@@ -4297,6 +4316,7 @@ static inline FILE *get_output_port(X s) { return port_file(get_output_stream(s)
+   } else {						\
+     initialize(argc, argv);				\
+     intern_static_symbols(PREVIOUS_SYMBOL);		\
++    fast_gc = 1;					\
+     A = NULL;						\
+     R = &&success_exit;					\
+     E = env_top;					\
+@@ -4941,6 +4961,7 @@ PRIMITIVE(delay_goal, X var, X prio, X ptr, X args) {
+     al = slot_ref(al, 1);
+   }
+ 
++  fast_gc = 0;
+   SLOT_SET(var, 3, PAIR(a1, al));
+   return 1;
+ }

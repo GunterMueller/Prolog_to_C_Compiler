@@ -1,0 +1,29 @@
+#!/usr/bin/env qp
+%%%% generate determinate declarations from -xref output
+
+
+:- ensure_loaded(library(run)).
+
+
+main :-
+	command_line_arguments([FNAME]),
+	temporary_file(TMP),
+	atomic_list_concat(['pc -xref \'', FNAME, '\' >\'', TMP, '\''], CMD),
+	shell(CMD),
+	see(TMP),
+	generate,
+	seen,
+	delete_file(TMP).
+main :-
+	display(user_error, 'usage: gen-det FILENAME\n'),
+	halt(1).
+
+generate :-
+	repeat,
+	read(TERM),
+	process(TERM).
+
+process(end_of_file).
+process(determinate(N/A)) :-
+	writeq((:- determinate(N/A))), display('.\n'),
+	fail.

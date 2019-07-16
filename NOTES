@@ -1,0 +1,330 @@
+NOTES							              -*- Org -*-
+
+
+* Issues
+** Major
+*** TODO split_string/4 doesn't work with string that consists only of spaces
+    - split_string/4 does not retain empty strings, this is
+      incompatible to SWIs version.
+*** DONE embedded test fails on [z]
+    - exit_code doesn't seem to be initialized.
+    - might be fixed in df6cf4379.
+*** TODO 0046-arithmetic test fails in 32-bit pc
+    - seems to be a parsing problem.
+*** TODO Term-comparison doesn't handle cyclic structures
+*** 0028-endless-tailcall crashes in pi
+    - hits some limit, not sure which.
+    - is in any case not keeping the memory-use constant.
+*** Implementation of if-then-else seems to be broken
+   - if-then stack gets out of balance, found here:
+     call_primitive('->', 2, TERM) :-
+	!,
+	arg(1, TERM, X), arg(2, TERM, Y),
+	execute(X) -> execute(Y). % parsed as (!, ...) -> execute(Y)
+   - adding parens around last goal repaired the problem, but still
+     this shouldn't happen.
+   - didn't occur lately, not sure if this is still relevant.
+*** 32-bit version can't tokenize fractional part of real if it doesn't fit into an integer
+   - e.g.:
+     main :- f(0.463647609000806).
+*** TODO Everything is still rather slow and uses too much memory
+   - see file:broken-tests/
+     - chess.pl works only with ridiculous memory settings:
+       chess -:T500M -:E500M -:h2G -:C500M -:A200M
+     - strangely, under SWI it produces different moves.
+*** TODO Once trail-stack reserve is reached, GC will loop if the trail can't be reduced
+    - remember trail_top when trailing triggers GC and avoid another
+      trailing-induced GC if the trail_top is not significantly below
+      the remembered one.
+    - still indicates insufficient trail-stack, show warning in
+      verbose mode.
+*** If heap is insufficient deref_term/4 will loop endlessly
+   - also recorded/X, retract/1 and clause/X, atom_codes/2,
+     number_codes/2.
+*** functor/3 (and others?) may exceed heap-reserve for large inputs
+*** This code caused base64_decode/2 in bunnymail to be incorrectly dropped
+    - commit 3cf402a26c9d69dcdfca25a01e79c3a5913a9774
+      #+BEGIN_SRC
+      diff --git a/xref.pl b/xref.pl
+      index fa36d9f..77bb55e 100644
+      --- a/xref.pl
+      +++ b/xref.pl
+      @@ -72,10 +72,7 @@ register_call(FROM, TO) :-
+	      recordz(calls, calls(FROM, TO)).
+
+       predicate_callers(NA, CALLERS) :-
+      -	findall(CALLER, recorded(calls, calls(CALLER, NA)), LST),
+      -	!,
+      -	CALLERS = LST.
+      -predicate_callers(_, []).
+      +	findall(CALLER, recorded(calls, calls(CALLER, NA)), CALLERS).
+      #+END_SRC
+    - the reason is not clear yet - only "pc -q compose.pl -o compose.c"
+      causes the error, dropping -q makes it work again.
+    - trace:
+      [(420/962/2446) CALL: predicate_callers('/'(decode_encoded_text, 4), [])]
+      [(420/962/2449) FAIL: predicate_callers('/'(decode_encoded_text, 4), [])]
+      [(420/962/2446) CALL: predicate_callers('/'(base64_encode, 2), [])]
+      [(420/962/2449) FAIL: predicate_callers('/'(base64_encode, 2), [])]
+      [(420/962/2446) CALL: predicate_callers('/'(base64_decode, 2), [])]
+      [(420/962/2449) EXIT: predicate_callers('/'(base64_decode, 2), [])]
+      [(420/961/2449) CALL: eliminate_predicate('/'(base64_decode, 2))]
+      [(420/961/2449) REDO: eliminate_predicate('/'(base64_decode, 2))]
+      [(420/961/2454) EXIT: eliminate_predicate('/'(base64_decode, 2))]
+    - findall succeeds, explicit unification succeeds, for an unknown
+      reason (trail-GC still wrong?)
+** Minor
+*** "simple-test" optimization is not possible for foreign_call/1
+    - a primitive may unify variables and quasi-failure would not
+      unwind the trail.
+*** TODO Profiling needs Windows implementation
+    - use Sleep() or SleepEx()
+*** TODO Iterating over db-entries may be influenced by added items
+    - see file:broken-tests/rdb-backtrack-in-added-item.pl
+    - required cut at end of eliminate_predicate/1 in file:dce.pl, or
+      pc1 loops here.
+*** TODO discontiguous doesn't work with "wildcard" PI
+    - e.g. ":- discontiguous bar." with defs for bar/0 and bar/1.
+    - matching of N/A when collecting clauses for one of the two
+      functors seems to get confused.
+    - not completely sure whether ISO allows PI without arity.
+*** TODO Check what other builtins we should prevent to be redefined
+    - currently only done for ';'/2
+    - see compile_clauses/4 in file:compile.pl
+*** discontiguous/1 is not available in the interpreter
+*** TODO standard-ports should have some initial data
+    - alias, type, mode.
+*** '$call' doesn't check argc nor whether argument is ptr
+    - needs to be safer, should it be exposed (or "meta_predicate"
+      is made official)
+*** interp: call/1 should probably handle X^Y terms (quantified)
+*** Eliminate redundant switch-instructions
+    - e.g.:
+      #+BEGIN_SRC prolog
+      foo(a, 1).
+      foo(b, 1).
+      foo(c, 1).
+      foo(d, 1).
+      #+END_SRC
+      produces 4 switch_on_atom operations.
+    - see compile_dispatch_sequence in file:index.pl
+*** is integer_rounding_function really "towards_zero"?
+*** Fresh checkout often leaves file:g-s-p.pl uncompiled
+    - only rebuilds g-s-p.c, but that might not be sufficient.
+    - but "make clean" should be sufficient.
+    - still the case?
+*** The output of TRACE_TAILCALL() is somewhat confusing
+    - Not sure if arguments output reflects the correct state.
+    - can we get rid of this?
+*** Erasing a db-entry that is already marked as erased is currently ignored
+   - actual deletion will happen on next GC.
+   - should we throw an error?
+   - note that 0069-cdb deletes twice: first the retract of hello(X)
+     and then the abolish of hello/1.
+*** Handle freezing of db-refs
+   - delete from deleted-items list?
+   - what can happen?
+   - currently caught by assertion in freeze_term_recursive()
+*** Using multiple threads is currently not possible
+   - all static vars would have to be declared TLS, but these may not
+     be statically initialized with non-constants, and this applies to
+     many data objects for literals.
+   - but user-defined literals can't be shared, or not?
+*** Unbound var in arithmetic expr doesn't show variable name
+   - extend var-rep to hold name, in addition to index.
+*** file:rdtok.pl doesn't handle integer with radix with radix length > 1
+*** Reader-error should throw syntax_error with message argument
+*** Throw ISO-compliant exceptions everywhere
+    - at least as much as possible and sensible.
+* Optimization opportunities
+** TODO Self-tail-calls should be optimizable
+   - just set A[] and jump? Do we need to restore R, and other registers?
+** TODO Var-test in clause-indexing can be omitted if argument has mode '+'
+** TODO Add macros for trivial lib predicates
+   | $findall_start/0          |
+   | tab/1                     |
+   | get/1                     |
+   | skip/1                    |
+   | open/3                    |
+   | open/4                    |
+   | read_string/2             |
+   | read_line/1               |
+   | set_input/1               |
+   | set_output/2              |
+   | flush_output/1            |
+   | at_end_of_stream/1        |
+   | put_char/2                |
+   | is_list/1                 |
+   | shell/1                   |
+   | unify_with_occurs_check/2 |
+   | list_to_ord_set/2         |
+   | keysort/2                 |
+   | sort/2                    |
+   | merge/3                   |
+** gprof reports very heavy use of make_var()
+   - force inlining? (check whether -O2 inlines it)
+   - check once again with new optimization options (-O1)
+** Deref arguments in advance
+   - Can be done for arguments with "+"-mode (other arguments may
+     be indirectly deref'd through shared bindings).
+** DONE If no GC occurs, failure could simply reset "alloc_top"
+   - see file:patches/fast-dealloc.diff
+   - may confuse memory-profiling.
+   - failing tests:
+     - 0081-zebra: restoring to alloc_top at predicate-entry seems to
+       be too much, e.g. in zebra, fail of call to right_of/3
+       backtracks inside main/0, resetting alloc_top below space
+       allocated by previous member/2 calls.
+       - but resetting alloc_top to the CP above the current one saves
+	 very little (current status of patch)
+     - 0120-different: also seems to need clearing fast_gc in
+       delay_goal()
+   - example code:
+     #+BEGIN_SRC prolog
+     main :-
+	     between(1, 1000, X),
+	     make(10000, _),
+	     writef("%d %f", [X]),
+	     fail.
+
+     make(0, []) :- !.
+     make(N, [x|R]) :-
+	     N2 is N - 1,
+    	     make(N2, R).
+     #+END_SRC
+** TODO Use power-of-2 sized hash-tables everywhere
+   - use binary-and instead of mod operation, supposed to be faster.
+   - symbol- and structure-dispatch tables, block-dispatch-tables (in
+     unify_block()), shared-term table
+** TODO If clause contains a single tail-call, CP-creation could be avoided
+   - also applicable if body consists of primitive operations only
+     (foreign_call/1, etc.)
+** TODO Peephole optimization of pseudo-instructions
+   - needs thorough analysis of occurring patterns.
+** Environment trimming
+   - sort variables by lifetime (reversed) and trim env_top after last use.
+   - may only be applicable when env_top didn't change.
+** TODO Special-case calls of primitives that are known to always succeed
+   - avoids test for failure.
+** DONE Take advantage of timestamps when binding vars in unify()
+   - see comment in file:pc.h (unify2), seems to work, but trail
+     is only slightly smaller.
+   - check if this doesn't break findall/bagof/setof.
+   - benchmark.
+** writeq/1 could use foreign_call(basic_writeq(X)) for atoms
+   - but the name needs to be classified anyway, because of the
+     possibly required space in front of it (or embedded quotes, which
+     must be doubled)
+** Arithmetic
+   - deref all vars just once at start.
+   - track types, use unboxed math.
+** Find a more efficient way of compiling unifications
+*** 2-stream unification
+   - rather complicated, first attempt at implementation ended in
+     quite a mess and was abandoned.
+** With some sort of type/groundness analysis many primitives could be optimized
+   - perform local flow-analysis before compiling list of clauses for
+     a predicate, collecting type/groundness info for each variable.
+   - functor, arg, name, univ, etc.
+   - rewrite to simpler forms.
+** Perform first match in C when looking up DB-entry
+   - full unification may not trail properly due to timestamp issues.
+   - could at least perform a simple match without binding variables.
+   - must pass term to match in first-lookup and lookup for next item.
+** TODO Determinate goal in condition of if-then-else can drop some of the CP dance
+   - same for '\\+'/2, once/1, ';'/2 (?)
+   - done for simple tests, but for declared predicates we must make sure
+     C is trimmed to C0 + 1
+** Analyze program before compiling to pseudo-instructions
+   - allows use of determinateness-analysis results even if definition
+     follows use.
+   - in other words: actually take advantage of having a static
+     whole-program compiler.
+* Features
+** Build source-map to produce backtrace on errors
+   - unfortunately throwing exceptions needs to have access to C0,
+     which would required changing too much code.
+   - initial patch: file:patches/label_map.diff
+** Detect unbound variables in '+' args for calls to predicates with declared mode
+   - i.e. at compile-time.
+   - possibly, but needs a lot of changes and slows down compilation.
+** DONE Check if we can use file:lib/canon.pl for printing query results
+   - see file:patches/canonical-term-in-pi.diff, currently drives the
+     var-indices rather hi (a cut in show_variables may help)
+   - syntax is ugly, could use "**" as does GNU Prolog.
+** Show warning for untriggered delayed goals with "-:d"
+   - check trail-entries when unwinding trail and before exit.
+** pb extensions
+*** TODO pb should understand "volatile"
+** Allow access to delayed goals
+   - frozen(VAR, PTRARGS) :: return ptr/args pairs,
+        non-deterministically
+** Unicode
+   - arbitrary character codes in strings (UTF-8?)
+   - pc.h: string_length(), to_string(), string_to_list()
+   - builtins that would have to be changed:
+     | atom_codes/2  |
+     | get/1         |
+     | get0/1        |
+     | put/1         |
+     | skip/1        |
+     | read_line/X   |
+     | read_string/X |
+     | read/X        |
+     | read_term/X   |
+     | sub_atom/5    |
+   - different handling of put_code/put_byte, get_code/get_byte and
+     peek_code/peek_byte
+* Documentation
+** TODO List differences to ISO in file:README
+** Missing ISO predicates
+   | Name                                         | Remarks                                         |
+   |----------------------------------------------+-------------------------------------------------|
+   | current_predicate/1                          | unimplemented                                   |
+   | set_prolog_flag/2                            | unimplemented, as there are no changeable flags |
+   | call/1                                       | unimplemented                                   |
+   | set_stream_position/2                        | too vague to be useful                          |
+   | char_conversion/2, current_char_conversion/2 | unimplemented                                   |
+   | write_canonical/1, write_canonical/2         | would require heavy modifiations to lib/write   |
+   | write_term/2, write_term/3                   | s.a.                                            |
+** ISO-extensions ISO DTR 13211-1:2006
+   | subsumes_term/2                |                                           |
+   | retractall/1                   |                                           |
+   | term_variables/2               | ISO, according to SWI docs                |
+   | callable/1                     | considered silly by notes in SWI docs     |
+   | log/2, atan/2, asin/1, acos/1, | arithmetic expressions                    |
+   | epsilon/0, pi/0, e/0           | arithmetic constants                      |
+   | ^/2                            | integer exponentation (error on overflow) |
+* Diagnostics
+** Detect singleton variables
+** Report unused predicates
+* Runtime
+** TODO Use macro to check for exceeded heap-limit
+* Test suites
+** file:/archive/prologsuite.tar.gz
+** file:/archive/inriasuite.tar.gz
+** file:/archive/iclpgcbenches.tar.gz
+** https://sites.google.com/site/prologsite/prolog-problems
+* Undocumented features
+** Compiler
+*** '$predicate_address'/2
+*** "meta_predicate" directive and usage
+    - see file:tests/0116-meta.pl
+*** "public" declaration
+    - see file:tests/0117-public.pl
+** Builtins
+*** slice/4
+*** deref_term/4
+*** read1/2
+*** '$call'/2
+*** Single-element list in arithmetic expressions
+** Interpreter
+*** expand_term/2 + term_expansion/2
+* Release steps
+** Document changes
+** make fullcheck
+** Test on WIN64
+** Test on Mac
+** Test on [pi], [call-cc]
+** Tag, push, upload
+** Bump version (file:README + file:lib/flags.pl)

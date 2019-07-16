@@ -1,0 +1,14 @@
+two on X, one fails:
+X fail
+Y1 and Z1, one fails:
+Z1
+Y1 fail
+Y2 and Z2:
+Z2
+Y2
+bar
+Y3 and Z3, joined:
+first
+second
+Z3
+Y3

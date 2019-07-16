@@ -1,0 +1,15 @@
+/* xt bindings -*- C -*- */
+
+extern /* success */ int xt_init(int, int, int, char *);
+extern int xt_event();
+extern /* success */ int xt_keyevent(/* out */ int *, /* out */ int *);
+extern /* success */ int xt_buttonevent(/* out */ int *, /* out */ int *,
+					/* out */ int *, /* out */ int *);
+extern /* success */ int xt_client_event();
+extern /* success */ int xt_resize_event(/* out */ int *, /* out */ int *, /* out */ int *, /* out */ int *);
+extern void xt_color(int, char *);
+extern void xt_text(int, int, char *);
+extern void xt_box(int, int, int, int);
+extern void xt_foreground(int);
+extern void xt_background(int);
+extern void xt_size(/* out */ int *, /* out */ int *);

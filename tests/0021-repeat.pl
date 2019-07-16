@@ -1,0 +1,1 @@
+main :- repeat, fail.

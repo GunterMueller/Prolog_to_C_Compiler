@@ -1,0 +1,22 @@
+#!/usr/bin/env tclsh
+### compile + run program, with tracing -*- Tcl -*-
+
+set opts "-g -DDEBUG_GC"
+set filename [lindex $argv 0]
+set args [lrange $argv 1 $argc]
+set bfile [file tail $filename]
+set xfile [file rootname $bfile]
+set cfile "${xfile}.c"
+
+if {[file extension $filename] != ".c"} {
+    if {[catch {exec ./pc -q -n $filename -o $cfile >@ stdout} result]} {
+	puts stderr $result
+	exit 1
+    }
+}
+
+eval exec gcc -std=gnu99 -Ilib -I. $opts $cfile -o $xfile -lm -lrt >@ stdout
+
+catch {eval exec "./${xfile}" -:v -:d $args >@ stdout 2>@ stdout} result
+puts $result
+

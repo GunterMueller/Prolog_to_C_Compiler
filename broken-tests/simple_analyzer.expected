@@ -1,0 +1,1 @@
+node(main/0,main,node($cut_load/1,$cut_load(uninit),leaf,node($cut_part/4_1/5,$cut_part/4_1(any,any,any,uninit,any),leaf,node($fac_$cut_part/4_1/5_2/6,$fac_$cut_part/4_1/5_2(any,any,any,uninit,any,any),node($cut_shallow/1,$cut_shallow(any),leaf,leaf),node((=<)/2,any=<any,leaf,leaf)))),node(qsort/3,qsort(any,uninit,any),node(part/4,part(any,any,any,uninit),leaf,leaf),leaf))

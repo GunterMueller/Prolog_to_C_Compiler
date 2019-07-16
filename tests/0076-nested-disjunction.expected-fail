@@ -1,0 +1,10 @@
+---
+display(one),fail
+Call: p
+ Call: display(one)
+one Exit: display(one)
+ Call: fail
+ Fail: fail
+ Redo: display(one)
+ Fail: display(one)
+Fail: p

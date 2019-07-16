@@ -1,0 +1,2138 @@
+
+
+?-Prolog - A Prolog->C Compiler
+===============================
+
+
+Version 7
+
+
+Introduction
+------------
+
+  This is "?-Prolog", a compiler for the [Prolog][1] programming
+  language. ?-Prolog compiles a single Prolog source file into C,
+  which can be subsequently compiled with a C compiler to an
+  executable. The generated code is platform-independent and should be
+  portable to a wide range of machines and operating systems. No other
+  dependencies exist, only a gcc-compatible C compiler is
+  required. The generated executables are usually small and can be
+  embedded in existing applications.
+
+  This Prolog implementation has no support for dynamic predicates, or
+  for calling user-constructed goals - all code must be statically
+  visible.  An interactive interpreter is available and can be used as
+  a library in compiled Prolog code, but interpreted predicates will
+  not be visible to compiled ones. Loading compiled code at runtime is
+  not possible and manipulating the clause-database with
+  assert/retract will have no effect on a compiled program.
+
+  Performance is reasonable, in micro-benchmarks it is roughly
+  comparable to systems like [SWI-Prolog][2], but will not be able to
+  compete with such mature Prolog implementations for larger,
+  real-world programs. Basic clause-indexing on the first argument of
+  a predicates is performed and tail-calls are optimized in many
+  cases, but otherwise very little optimization is currently being
+  done.
+
+  The dialect of Prolog implemented should be sufficient for usual
+  Prolog programming. Basic ISO and Edinburgh system predicates and
+  control structures are available. Modules, separate compilation or
+  dynamic loading of compiled code are not provided, and
+  multithreading is not supported.  This Prolog implementation does
+  not attempt to be ISO compliant, event though many standard
+  predicates are available. Coroutining is implemented (using `freeze/2`
+  and `dif/2`) and the handling infinite trees is supported in many
+  cases, but probably not all.
+
+  ?-Prolog has currently only been tested on Linux (x86, x86-64 and
+  ARM), Mac OS X and Windows 7 (with the mingw32 and mingw64
+  toolchains.)
+
+  The system is not further developed and contains known and
+  unknown bugs. If you experience problems or want to help, please
+  don't hesitate to contact [me][9].
+
+
+Building and installation
+-------------------------
+
+  Assuming you obtained the sources from the distribution archive,
+  which can be found at [here][7], just unpack the tarball and follow
+  the instructions given below. There is also a source-code repository
+  on [Bitbucket][8], but this uses a custom build-environment and
+  contains mostly tests and supporting code.
+
+  The compiler itself is written in ?-Prolog and must be pre-compiled
+  to C before it can be used. In the distribution archive that
+  contains the file your are currently reading, pre-compiled code for
+  the compiler and interpreter are included, so all that remains to be
+  done is to compile these using GNU make(1):
+
+    make
+
+  A C compiler with support for C99, including some GNU extensions is
+  required, both [gcc][4] and [clang][5] have been successfully tested.
+  You can edit the variables at the top of the makefile to choose a
+  different compiler or different compilation options. If you don't
+  have GNU make, then compile the files manually, see Makefile for the
+  proper options you have to pass to the compiler.
+
+  Compilation may take quite some time, particularly with clang.
+
+  Several builtin predicates are actually implemented in Prolog and
+  reside in separate library files in the "lib" directory. You can
+  install the compiler and interpreter-binaries wherever you like, but
+  to find the libraries the compiler must be able to locate the
+  library directory. This can be done by setting the environment
+  variable `PC_LIBRARY_DIR` to the name of a directory to be searched.
+
+  There is an "install" target in the makefile, which will copy all
+  parts of ?-Prolog in your system. To do so enter
+
+    make PREFIX=<path> install
+
+  `PREFIX` defaults to `/usr/local`. After this set `PC_LIBRARY_DIR`
+  to `<PREFIX>/qp`.
+
+
+Usage
+-----
+
+  Simply invoke the compiler with the source file to be compiled:
+
+    pc <FILENAME>
+
+  The compiler understands the following command-line options:
+
+    -version                show version and exit.
+    -h                      show some usage information.
+    -v                      show clauses as they are compiled.
+    -i                      show intermediate code produced instead 
+                            of generating a C file.
+    -o FILENAME             specify output-file name (defaults to
+                            the name of the source file, with the
+                            file-extension replaced by ".c")
+    -q                      do not show any output while compiling.
+    -compress-facts         reduce code produced for facts (see below)
+    -xref                   write cross-referencing information to
+                            stdout
+    -xrefall                like `-xref`, but considers all library code
+                            as well and also outputs a call-graph
+    -n                      ignore PC_LIBRARY_DIR
+
+  Any output preceeded with "%" is purely for informational purposes
+  and can be disabled with the "-q" option.
+
+  Code compiled must then be passed to a C compiler:
+
+    gcc -std=gnu99 -I. <program>.c -o <program> -lm
+
+  Platform-specific issues:
+
+  - On Linux the "librt" library must be linked by adding "-lrt" to
+    the C compiler invocation given above.
+
+  It is advisable to add some optimization options to improve the
+  performance of the compiled executables, recommended are typically
+  
+    -O1 -fomit-frame-pointer -fno-strict-aliasing -fwrapv
+
+  The latter two will prevent the C compiler from taking advantage of
+  some unintuitive interpretations of the C language and should be
+  used when optimizations are enabled for code produced by the Prolog
+  compiler. For development builds it is advisable to compile without
+  optimization options, as this reduces compilation time. If
+  performance is important, use -O3, but compiling will take much
+  longer.
+
+  For your convenience a helper script named "qp" is included in the
+  distribution that takes a Prolog source file and compiles and
+  executes the final executable. Enter "qp -help" for a list of
+  available options. "qp" will cache the binary in a directory
+  (default: "~/.qp") and only recompile it when the source code
+  changed. One use of this script is to automatically compile
+  a script containing Prolog source code:
+
+<pre>
+      % cat hello
+      #!/usr/bin/env qp
+      main :- display('Hello, World!'), nl.
+      % chmod +x hello
+      % ./hello
+      Hello, World!
+</pre>
+
+  Running "qp" without arguments just starts the interpreter ("pi").
+  Enter "qp -help" to see a list of options.
+
+
+Interpreter
+-----------
+
+  The interpreter can be run interactively by simply starting it, or
+  can run and execute a Prolog source file, given on the command-line:
+
+    pi <FILENAME>
+
+  Any file listed on the command line is "consulted" (its clauses are
+  loaded) and finally the interactive prompt will be displayed, and
+  allows you to enter queries.
+
+  Given the command-line option "-t", execution starts in "trace"
+  mode, which shows how predicates are called, exit, fail or
+  re-execute during backtracking. The interpreter has all
+  library-predicates included and does not need to have access to the
+  library directory.
+
+  The option "-i <goal>" sets <goal> as the default initialization
+  goal to be executed, if no initialization-goal was declared in the
+  source file.
+
+  Files consulted or included are located relative to the current
+  working directory. File-references of the form `library(NAME)` are
+  converted into a path relative to the current library directory,
+  which is either `./lib` or the value of the environment variable
+  "PC\_LIBRARY\_DIR", if it is defined.
+
+  In contrast to the compiler, the clause-database represents the
+  program that is currently executing and manipulations of the
+  database using arsserta/assertz will influence running code. The
+  effect of asserting or retracting clauses for predicates that
+  currently execute is undefined.
+
+  Note that the interpreter is a simple meta-circular evaluator and is
+  thus rather slow.
+
+
+Debugging and error messages
+----------------------------
+
+  There are no debugging-facilities besides a "trace" mode, which
+  writes information about predicate-calls, -exits, -fails and redo's
+  during execution to stderr. You can enable this trace mode by
+  running the binary with the "-:d" option to produce a trace on
+  stderr as the program is executing.
+
+  The compiler does very little error-reporting, mostly to simplify
+  the implementation. Syntactical errors will produce a parser error,
+  with some rough indication about the place where the problem
+  occurred. Runtime-errors will throw an exception, which can be
+  caught by user code using `catch/3`. 
+
+
+Support syntax
+--------------
+
+  ?-Prolog fully supports the ISO Prolog syntax. Naked variables in
+  goals are not automatically converted to `call(VAR)`, and will
+  result in a compiler error if used.
+
+  DCG rules, including semicontext notation, are fully supported.
+
+  Hexadecimal numeric syntax ("0x...") is allowed, and quoted atoms
+  and strings may contain the escape sequences "\xXX", "\n", "\r" and
+  "\t".
+
+
+Builtin predicates
+------------------
+
+  All predicates listed here are either built-in or provided in
+  "auto-included" libraries in the current library directory.
+
+  - Control structures
+
+        GOAL, GOAL                    
+    
+    Conjunction [ISO]
+
+        GOAL; GOAL
+
+    Disjunction [ISO]
+
+        GOAL1 -> GOAL2
+
+    "If-then" [ISO]
+
+        !
+
+    "Cut" [ISO]
+
+        \+ GOAL                   
+
+    "Not" [ISO]
+
+        repeat                            
+
+    Always succeeds [ISO]
+
+        once(+GOAL)
+
+    Execute GOAL, but only for the first solution [ISO]
+
+        findall(?T, +GOAL, -R)
+
+    Unify R with the list of all T for goal GOAL [ISO]
+
+        bagof(?T, +GOAL, -R)
+
+    All solutions [ISO]
+
+        setof(?T, +GOAL, -R)
+
+    All solutions without duplicates, and sorted [ISO]
+
+        forall(+GOAL1, +GOAL2)
+
+    True if GOAL2 unifies for all solutions of GOAL1.
+
+        catch(+GOAL1, ?BALL, +GOAL2)
+
+    Invoke GOAL1 and, if an exception occurs during its execution that
+    unifies with BALL, invokes GOAL2 and continues [ISO]
+
+        throw(BALL)
+
+    Throws exception BALL [ISO]
+
+        delay(-VAR, +GOAL)
+
+    Delay execution of GOAL until VAR is bound to a variable or a
+    non-variable term. If VAR is already a non-variable term, GOAL is
+    executed immediately. The goals triggered by bound variables may
+    not execute immediately until the next predicate-entry,
+    (non-determinate) predicate exit, cut, or after a
+    head-unification. Note that the triggering of GOAL depends on the
+    binding order, in case VAR is bound to another unbound variable.
+    `delay/2` is used as the basic for `freeze/2` and `dif/2`, described
+    below.
+
+        freeze(-VAR, +GOAL)
+
+    Delay execution of GOAL until VAR is bound to a non-variable
+    term.
+
+        dif(?X, ?Y)
+
+    Fails if X and Y are identical, otherwise constrains both terms to
+    be different: if any instantiation of variables inside the terms
+    would make X and Y identical, then the operation that performed
+    the instantiation will fail. Inequality-constraints on variables
+    are implemented using `delay/2` but always take precedence before
+    other delayed goals.
+
+    The "GOAL"s must be complete, callable terms, merely passing
+    variables containing callable terms is not sufficient.
+
+  - Equality and comparison predicates
+
+        X = Y
+
+    Unifies X with Y [ISO]
+
+        X \= Y
+
+    Succeeds if X does not unify with Y [ISO]
+
+        X == Y
+
+    Succeeds if X is identical to Y [ISO]
+
+        X \== Y 
+
+    Succeeds if X is not identical to Y [ISO]
+
+        X @< Y  
+
+    X is ordered below Y [ISO]
+
+        X @> Y
+
+    X is ordered above Y [ISO]
+
+        X @=< Y
+
+    X is ordered below Y or is identical [ISO]
+
+        X @>= Y
+
+    X is ordered above Y or is identical [ISO]
+
+        unify_with_occurs_check(?X, ?Y)
+
+    Succeeds if X and Y can be unified without introducing cycles.
+
+  - Conversion-predicates
+
+        atom_chars(?X, ?Y)
+
+    Unifies Y with a list of single-character atoms representing the
+    characters in the atom X or vice versa [ISO]
+
+        atom_codes(?X, ?Y)
+
+    Unifies X with the atom constructed from the character-codes in
+    the list Y or vice versa [ISO]
+
+        char_code(?X, ?Y)
+
+    Unifies X with the atom constructed from the character code Y
+    or vice versa [ISO]
+
+        number_codes(?X, ?Y)
+
+    Unifies X with the number constructed from the character-codes in
+    the list Y or vice versa [ISO]
+
+        atom_number(?X, ?Y)
+
+    Unifies X with the atom constructed from the number Y or vice versa.
+
+        name(?X, ?Y)
+
+    Unifies X with the atom or number constructed from the character
+    codes in the list Y or vice versa.
+
+        atom_hash(+ATOM, -X)
+
+    Unifies X with the hash-code of ATOM.
+
+  - Term-construction and deconstruction predicates
+
+        arg(+INDEX, +TERM, ?ARG)
+
+    ARG is the INDEXth argument of TERM [ISO]
+
+        functor(?X, ?Y, ?Z)
+ 
+    Unifies Y with the name and Z with the arity of the term X. If X
+    is a variable, constructs a term of arity Z with the name Y where
+    the terms arguments are all fresh unbound variables [ISO]
+
+        copy_term(?X, ?Y)
+
+    Unifies X with a copy of the term Y or vice versa. Note that only
+    non-ground terms are copied, renaming contained variables [ISO]
+
+        duplicate_term(?X, ?Y)
+
+    Completely duplicates the term X and unifies it with Y, even
+    ground terms.
+
+        ?X =.. ?Y
+
+    Deconstructs term X into a list of its name and arguments, or
+    constructs a term from a list ("univ") [ISO]
+
+  - Type-testing predicates
+
+        atom(+X)
+
+    True if X is an atom [ISO]
+
+        atomic(+X)
+
+    True if X is an atom or a number [ISO]
+
+        compound(+X)
+
+    True if X is a non-atomic structure [ISO]
+
+        db_reference(+X)
+
+    True if X is a database-reference.
+
+        float(+X)
+
+    True if X is a floating-point number [ISO]
+
+        integer(+X)
+
+    True if X is an integral number [ISO]
+
+        nonvar(+X)
+
+    True if X is not an unbound variable [ISO]
+
+        number(+X)
+
+    True if X is an integer or floating-point number [ISO]
+
+        foreign_pointer(+X)
+
+    True if X is a foreign-pointer object.
+
+        is_stream(+X)
+
+    True if X is an input/output stream.
+
+        var(+X)
+
+    True if X is an unbound variable [ISO]
+
+        ground(?X)
+
+    True if X does not contain unbound variables [ISO]
+
+  - Input/Output predicates
+
+        at_end_of_stream
+        at_end_of_stream(+STREAM)
+
+    Succeeds, if the current input stream or STREAM has reached the
+    end [ISO]
+
+        close(+STREAM)
+        close(+STREAM, +OPTIONS)
+
+    Closes the given stream. If STREAM is the current input- or
+    output- stream, then the default I/O stream becomes current,
+    if STREAM refers to one of the default I/O streams, than nothing
+    is done. OPTIONS is currently ignored [ISO]
+  
+        current_input(-X)
+        current_output(-X)
+
+    Unifies X with the current input- or output-stream [ISO]
+
+        current_error_output(-X)
+
+    Unifies X with the current error output stream.
+
+        display(+X)
+        display(+STREAM, +X)
+
+    Display X on the current output stream or the stream given, note
+    that lists are printed in list- notation.
+
+        nl
+        nl(+STREAM)
+
+    Writes the newline character on the current output stream or the
+    stream given [ISO]
+
+        open(+NAME, +MODE, -STREAM)
+        open(+NAME, +MODE, -STREAM, +OPTIONS)
+
+    Opens a file stream. MODE may be one of the atoms "read", "write"
+    or "append". OPTIONS should be a list of open-options, currently
+    supported are only the following:
+
+        type(text)        default
+        type(binary)
+
+    Stream-aliases for user-defined ports are not supported. To make
+    the stream the current input or output port use `see/1` or `tell/1`,
+    respectively [ISO]
+
+        peek_byte(-BYTE)
+        peek_byte(+STREAM, -BYTE)
+        peek_code(-BYTE)
+        peek_code(+STREAM, -BYTE)
+
+    Peeks a character from the current input stream or the stream
+    given and unifies it with BYTE (-1 if the end of file is reached.)
+    The character is not removed from the input port.  As there is
+    currently no UNICODE support, these predicates are interchangable
+    [ISO]
+
+        peek_char(-CHAR)
+        peek_char(+STREAM, -CHAR)
+
+    Peeks a character as a length 1 atom from the current input stream
+    or the stream given. On end-of-file CHAR is unified with the atom
+    'end_of_file' [ISO]
+
+        put(+X)
+        put(+STREAM, +X)
+
+    Writes the character with the code X to the current output-stream
+    or STREAM.
+
+        put_byte(+BYTE)
+        put_byte(+STREAM, +BYTE)
+        put_code(+BYTE)
+        put_code(+STREAM, +BYTE)
+
+    Writes a byte to the current output stream or the stream given. As
+    there is currently no UNICODE support, these predicates are
+    interchangable [ISO]
+
+        put_char(+CHAR)
+        put_char(+STREAM, +CHAR)
+
+    Writes the length 1 atom CHAR to the current output stream or the
+    stream given [ISO]
+
+        flush_output
+        flush_output(+STREAM)
+
+    Flushes pending but unwritten output in the current output-stream,
+    or the stream given [ISO]
+
+        append(+FILE)
+
+    Opens FILE in "append" mode and makes it the current
+    output-stream. FILE may be an atom or a list of character codes (a
+    string).
+
+        get(-X)
+        get(+STREAM, -X)
+
+    Unifies X with the code of the next non- whitespace character in
+    the current input-stream or STREAM.
+
+        get0(-X)
+        get0(+STREAM, -X)
+
+    Unifies X with the code of the next character in the current
+    input-stream or STREAM.
+
+        get_byte(-BYTE)
+        get_byte(+STREAM, -BYTE)
+        get_code(-BYTE)
+        get_code(+STREAM, -BYTE)
+
+    Read a byte from the current input stream or the stream given. As
+    there is currently no UNICODE support, these predicates are
+    interchangable [ISO]
+
+        get_char(-CHAR)
+        get_char(+STREAM, -CHAR)
+
+    Read a character as a length 1 atom from the current input stream
+    or the stream given. On end-of-file CHAR is unified with the atom
+    'end_of_file' [ISO]
+
+        read(-X)
+        read(+STREAM, -X)
+
+    Reads the next term from the current input-stream or the stream
+    given and unifies it with X [ISO]
+
+        read_term(-TERM, +OPTIONS)
+        read_term(+STREAM, -TERM, +OPTIONS)
+
+    Read a term, given a list of read-options. Currently supported
+    read-options are:
+
+        variables(-VARS)            unify VARS with the list if non-
+                                    anonymous variables in TERM [ISO]
+        variable_names(-VARNAMES)   unify VARNAMES with a list of
+                                    ATOM=VAR structures of all non-
+                                    anonymous variables [ISO]
+
+        read_string(+LEN, -X)
+        read_string(+STREAM, +LEN, -X)
+
+    Read up to LEN characters from the current input port or STREAM
+    and unify X with an list composed of the character codes. If LEN
+    is not an integer, all remaining input will be read. X will
+    contain less than LEN character codes when fewer than that number
+    of characters remain in the input stream. On end-of-file, X will
+    be the empty list.
+
+        read_line(-X)
+        read_line(+STREAM, -X)
+
+    Read one line from the current input port or STREAM as a list of
+    character codes and unify it with X. If the end of file is
+    reached, then X is unified with the atom `end_of_file`. Any
+    end-of-line character terminating the line is not included in the
+    returned atom.
+
+        see(+X)
+
+    Sets the current input-stream to X, which may be a stream or a
+    filename (an atom or a list of character codes.)
+
+        seeing(-X)
+
+    Unifies X with the current input-stream.
+
+        seen
+
+    Closes the current input-stream (if it is not the default
+    input-stream) and sets the current input-stream to the default
+    one.
+
+        skip(+X)
+        skip(+STREAM, +X)
+
+    Reads characters from the current input-stream or STREAM until a
+    character that unifies with X is read.
+
+        tab(+N)
+        tab(+STREAM, +N)
+
+    Writes N spaces to the current output stream or STREAM.
+
+        tell(+X)
+
+    Sets the current output-stream to X, which may be a stream or a
+    filename.
+
+        telling(-X)
+
+    Unifies X with the current output-stream.
+ 
+        told
+
+    Closes the current output-stream (if it is not the default
+    output-stream) and sets the current output-stream to the default
+    one.
+
+        write(+X)
+        write(+STREAM, +X)
+
+    Writes X to the current-output stream or the stream given, using
+    operator notation, if possible.
+
+        writeq(+X)
+        writeq(+STREAM, +X)
+
+    Writes X to the current-output stream or the stream given, using
+    operator-notation, if possible and quotes atoms that would need to
+    be quoted on reading.
+
+        set_input(+STREAM)
+        set_output(+STREAM)
+
+    Sets the current input or output stream to STREAM. You can pass
+    the atom 'user' to select the standard input or output port [ISO]
+
+        set_stream_position(+STREAM, +POS)
+
+    Sets the current position in STREAM to POS, which may be either
+    the atom "end" or a positive integer indicating the absolute
+    position in bytes.
+
+        stream_property(+STREAM, ?PROP)
+
+    Returns or enumerates properties of STREAM. Currently supported are
+    the following properties:
+
+        position(POS)    absolute current position in STREAM (in bytes) [ISO]
+        tty(BOOL)        wether STREAM is connected to a terminal
+        file_no(INT)     UNIX file-descriptor
+        mode(MODE)       'read', 'write' or 'append'
+        input            if input-stream
+        output           if output-stream
+
+    The following builtin stream aliases are available:
+
+        current_input
+        current_output   these refer to the currently active I/O streams
+        user_input      
+        user_output
+        user_error       these refer to the initial I/O streams (i.e. the
+                         console)
+
+    `tell/1` and `see/1` accept the stream-alias `user`, which has the
+    same meaning as `user_output` and `user_input`, respectively.
+
+  - Formatted output
+
+        writef(FORMAT)
+
+    Writes a format-string. This is the same as "writef(FORMAT, [])".
+
+        writef(FORMAT, ARGS)
+
+    Writes output according to the format-string FORMAT and a list of
+    arguments.
+
+        fwritef(OUT, FORMAT)
+
+    Writes a format-string to OUT, which must be a filename (atom) or
+    an output stream. This is the same as "fwritef(OUT, FORMAT, [])".
+
+        fwritef(OUT, FORMAT, ARGS)
+
+    Writes output to the file or stream OUT, according to the
+    format-string FORMAT and a list of arguments.
+
+    The format-string (an atom or a string) may contain the following special 
+    character sequences:
+
+        %t              output the next argument (same as %w)
+        %w              write the next argument
+        %q              writeq the next argument
+        %d              display the next argument
+        %p              same as %t
+        %l              outputs the next argument as a list, with each element on
+                        a new line, indented by 4 characters
+        %c              output a conjunction (terms combined by &/2 or ,/2),
+                        with each element on a new line, indented by 4 characters
+        %n              put the next argument as a character (integer code)
+        %r              repeat the next argument N times, where N is the second
+                        next argument
+        %s              write the next argument as a string
+        %i              the next arguments are a format-string and a list
+                        (indirect writef)
+        %f              perform `flush/0`
+        %g              writes a compound of the form NAME(ARG, ...) as 
+                        ARG1 NAME ARG2 NAME ...
+        %x              skips the next argument
+        %Nc             write the next argument centered in N columns
+        %Nl             write the next argument left justified in N columns
+        %Nr             write the next argument right justified in N columns
+
+    If the argument list is neither [] or the empty list, it is turned into
+    a one-element list.
+
+  - Database access predicates
+
+        abolish(+PI)
+
+    Removes all clauses in the clause-database under the given
+    predicate-indicator, which may be an atom, a term of the form
+    NAME/ARITY or a list of predicate-indicators [ISO]
+
+        asserta(+CLAUSE)
+        asserta(+CLAUSE, -REF)
+
+    Inserts clause X into the clause-database, before any existing
+    clauses with the same name and arity, optionally unifiying REF
+    with a DB-reference to the inserted clause [ISO]
+
+        assertz(+CLAUSE)
+        assertz(+CLAUSE, -REF)
+
+    Inserts clause X into the clause-database, after existing clauses
+    with the same name and arity, optionally unifiying REF with a
+    DB-reference to the inserted clause [ISO]
+
+        clause(+X, ?Y)            
+        clause(+X, ?Y, -REF)
+
+    Unifies X and Y with the head and body of matching clauses in the
+    clause-database, optionally unifying REF with a database-
+    reference to the matched clause [ISO].
+
+        erase(+X)
+
+    Erases the entry with the database-reference X in the clause- or
+    record-database.
+
+        recorda(+X, -Y)
+        recorda(+X, -Y, -REF)
+
+    Inserts term Y under key X in the record database, before any
+    existing terms for the same key, optionally unifying REF with a
+    database-reference to the added term.
+
+        recordz(+X, -Y)
+        recordz(+X, -Y, -REF)
+
+    Inserts term Y under key X in the record database, after any
+    existing terms for the same key, optionally unifying REF with a
+    database-reference to the added term.
+
+        recorded(+X, -Y)
+        recorded(+X, -Y, -REF)
+
+    Unifies Y with the terms found in the record-database under the
+    key X, optionally unifying REF with a database-reference to the
+    found term.
+
+        retract(+X)
+
+    Removes matching clauses in the clause-database and unifies X with
+    the matgched clause [ISO]
+
+    Note that clauses in the clause-database have no effect on compiled 
+    programs.
+
+  - Arithmetic predicates
+
+        X < Y
+
+    True if X is numerically less than Y [ISO]
+
+        X > Y
+
+    True if X is numerically greater than Y [ISO]
+
+        X =< Y
+
+    True if X is numerically less than or equal to Y [ISO]
+
+        X >= Y
+
+    True if X is numerically greater than or equal to Y [ISO]
+
+        X =:= Y
+
+    True if X is numerically equal to Y [ISO]
+
+        X =\= Y
+
+    True if X is not numerically equal to Y [ISO]
+
+        -X is Y
+
+    Unifies X with the result of evaluating expression Y [ISO]
+
+        divide(X, Y, Q, R)
+
+    True if X divided by Y is Q * R. Either and A and B must be
+    ground, or on of A and B and both Q and R must be ground. All
+    arguments must be integers or unbound.
+
+        plus(X, Y, Z)
+
+    True if Y plus Z is X, at least two arguments must be ground. All
+    arguments must be integers or unbound.
+
+        succ(X, Y)
+
+    True if Y is the next integer after X, at least one argument must
+    be ground. X and Y must be integers or unbound
+
+        times(X, Y, Z)
+
+    True if X times Y is Z, at least 2 arguments must be ground. All
+    arguments must be integers or unbound.
+
+    Note that variables in expressions must contain numerical values.
+    Expressions in variables are not evaluated (as is normally
+    required by ISO Prolog).
+
+  - Arithmetic operators
+
+        + X
+
+    Identity [ISO]
+
+        - X
+
+    Negation [ISO]
+
+        \ X
+
+    Bitwise complement [ISO]
+
+        X + Y
+
+    Addition [ISO]
+
+        X - Y
+
+    Subtraction [ISO]
+
+        X * Y
+
+    Multiplication [ISO]
+
+        X / Y
+
+    Division (always returns float) [ISO]
+
+        X // Y
+
+    Integer division [ISO]
+
+        X \\ Y
+        X rem Y
+
+    Integer remainder ["rem" is ISO]
+
+        X /\ Y
+
+    Bitwise and [ISO]
+
+        X \/ Y
+
+    Bitwise or [ISO]
+
+        X >> Y
+
+    Bit-shift right [ISO]
+
+        X << Y
+
+    Bit-shift left [ISO]
+
+        X ** Y
+
+    Exponentation [ISO]
+
+        abs(X)
+
+    Absolute value [ISO]
+
+        atan(X)
+
+    Arcustangens [ISO]
+
+        ceiling(X)
+
+    Next larger integer [ISO]
+
+        clock
+
+    Current time in seconds, starting from some unspecified point in
+    time.
+
+        cos(X)
+
+    Cosine [ISO]
+
+        exp(X)
+
+    Exponential function [ISO]
+
+        float(X)
+
+    Convert to float [ISO]
+
+        float_fractional_part(X)
+
+    Fractional component [ISO]
+
+        float_integer_part(X)
+
+    Integer component [ISO]
+
+        floor(X)
+
+    Next smaller integer [ISO] 
+
+        log(X)
+
+     Natural logarithm [ISO]
+
+        random(X)
+
+     Random integer between 0 and X (exclusive). This function calls
+     the C library routine rand(3), where the initial random seed has
+     been initialized to a time-based value at the start of the
+     executing program
+
+        round(X)
+
+     Round to nearest integer [ISO]
+
+        sign(X)
+
+     Sign of value [ISO]
+
+        sin(X)
+
+     Sine [ISO] 
+
+        sqrt(X)
+
+     Square-root [ISO]
+
+        tan(X)
+
+     Tangent [ISO]
+
+        truncate(X)
+
+     Truncate to integer [ISO]
+
+        X xor Y
+
+     Bitwise xor.
+
+        max(X, Y)
+        min(X, Y)
+
+     Maximum and minimum of two numbers.
+
+  - Operating-system interaction
+
+        command_line_arguments(-X)
+
+    Unifies X with a list of the command-line arguments passed to the
+    currently running program. The list does not include the program
+    name.
+
+        exists_file(+X)
+
+    True, if the regular file with the name X (an atom or string)
+    exists.
+
+        exists_directory(+X)
+
+    True, if the directory with the name X (an atom or string) exists.
+
+        getenv(+X, -Y)
+
+    Unifies Y with the value of the environment variable named by X,
+    which may be an atom or a string.
+
+        getpid(-X)                        
+
+    Unifies X with the process-id of the currently running process.
+
+        halt                      
+        halt(+CODE)
+
+    Terminates the currently running program and returns to the
+    operating system with exit code X (defaults to 0).
+
+        sleep(+X)
+
+    Waits X seconds.
+
+        shell(+CMD)                       
+        shell(+CMD, -STATUS)
+
+    Executes the shell-command CMD (which should be an atom or a
+    string) and unifies STATUS with the return status (exit code) of
+    the shell after running the command. If STATUS is not given,
+    `shell/1` fails when the command returns with an exit-status that is
+    not 0.
+
+        rename_file(+OLD, +NEW)
+
+    Renames the file designated by the atom or string OLD to NEW.
+
+        delete_file(+NAME)
+
+    Deletes the file designated by the atom or string NAME.
+
+        getcwd(-DIR)
+
+    Unifies DIR with an atom representing the current working
+    directory.
+
+        chdir(+DIR)
+
+    Set the current working directory to DIR (an atom or a string).
+
+  - Set operations
+
+        intersection(+SET1, +SET2, -SET3)
+
+    SET3 is the intersection of the sets SET1 and SET2.
+
+        select(?X, ?SET1, ?SET2)
+
+    SET2 is SET1 with element X removed.
+
+        subtract(+SET1, +SET2, -SET3)
+
+    SET3 is SET1 with the elements of SET2 removed.
+
+        symdiff(+SET1, +SET2, -SET3)  
+
+    SET3 is the the "symmetric difference" of SET1 and SET2 (i.e. it
+    is the union without the intersection.)
+
+        union(+SET1, +SET2, -SET3)
+
+    SET3 is the union of sets SET1 and SET2.
+    
+  - Predicates on ordered sets
+
+        list_to_ord_set(+LIST, -SET)  
+
+    SET is LIST converted to an ordered set.
+
+        ord_disjoint(+SET1, +SET2)
+
+    True if X and Y have no common elements.
+
+        ord_insert(+SET1, +X, -SET2)
+
+    True if X inserted into SET1 gives SET2.
+
+        ord_intersect(+SET1, +SET2)
+
+    True if sets have some elements in common.
+
+        ord_intersect(+SET1, +SET2, -SET3) 
+
+    SET3 is the intersection of SET1 and SET2.
+
+        ord_memberchk(+X, +SET)
+
+    Unifies X with the first element of SET - this predicate only
+    produces one solution.
+
+        ord_subset(+SET1, +SET2)
+
+    True if SET1 is a subset of SET2.
+
+        ord_subtract(+SET1, +SET2, -SET3)
+
+    Subtract SET2 from SET1, giving SET3.
+
+        ord_symdiff(+SET1, +SET2, -SET3)
+                                      
+    SET3 is the symmetric difference of SET1 and SET2.
+
+        ord_union(+SET1, +SET2, -SET3)
+
+    SET3 is the union of SET1 and SET2.
+
+  - List operations
+
+        length(?X, ?N)  
+
+    N is the length of list X.
+
+        keysort(+SET, -SORTED)
+
+    SORTED is SET, ordered by the first argument of each element
+    (usually -/2).
+
+        merge(+SET1, +SET2, -SET3)    
+
+    SET3 is the combination of the ordered sets SET1 and SET2.
+
+        reverse(?X, ?Y)
+
+    Y is the list X in reverse order.
+
+        sort(+X, -Y)
+
+    Y is the list X in sorted order.
+
+        append(?X, ?Y, ?Z)
+
+    Z is the list Y appended to the list X.
+
+        append(+LIST, ?RESULT)
+
+    Append all lists in LIST, producing RESULT.
+
+        member(?X, ?Y)
+
+    Unifies X with the members of the list Y.
+
+        memberchk(?X, +Y)
+
+    Like `member/2`, but produces only one solution.
+
+        is_list(?X)
+
+    True, if X is a list.
+
+        nth(?INDEX, +LIST, ?ELEM)
+
+    True if ELEM is the INDEXth element of LIST, counting starts at 1.
+    This predicate can be used to select or enumerate elements.
+
+  - Calling code written in other languages
+
+        foreign_call(CALL)
+
+    Invokes a foreign procedure (see below for more information.)
+
+  - Other predicates
+
+        true
+
+    Always succeeds [ISO]
+
+        fail                      
+
+    Always fails [ISO]
+
+        garbage_collect
+
+    Triggers a garbage collection on the next predicate-invocation.
+
+        suspend(?X, ?Y)
+
+    Suspends execution in embedded code (see below for more
+    information about embedding).
+
+        enable_trace(+X)                  
+
+    Enables "trace" mode in compiled code, starting at the next call,
+    exit or fail. For this to be effective, the program must be
+    compiled without the "-DNDEBUG" option.
+
+        compare(-X, ?X, ?Z)               
+
+    Compares X and Z and unifies X with one of the atoms '=', '<' or
+    '>', depending on whether Y is identical, ordered below or
+    ordered above Z.
+
+        between(+LOW, +HIGH, ?X)
+
+    X is between LOW and HIGH, inclusive. If X is unbound, produces
+    all solutions between LOW and HIGH.
+
+        current_op(?P, ?A, ?N)
+
+    Unifies N with the name of any currently defined operators with
+    precedence P and associativity A.
+
+        op(+P, +A, +N)            
+
+    Defines a new operator with name N (an atom), precedence P (an
+    integer between 0 and 1200) and associativity A (one of the atoms
+    'fx', 'fy', 'xf', 'yf', 'xfx', 'xfy' or 'yfx'). N may also be a
+    list of atoms.
+
+        global_ref(NAME, -X)          
+    
+    Unifies X with the current value of the global variable NAME,
+    which must have been previously declared with the
+    "global_variable" directive (see below.)
+
+        global_set(NAME, +X)          
+
+    Sets the global variable with the name NAME to X. Note that this
+    does not take care of backtracking, use `copy_term/2` to preserve X
+    in that case.
+
+        current_prolog_flag(+ATOM, -VAL)
+
+    Unifies VAL with the appropriate value for the Prolog-flag named
+    by ATOM. Currently available are these settings:
+
+        version                       Prolog version as integer
+        bounded                       true
+        max_arity                     65536 (arbitrary, this has not been tested)
+        integer_rounding_function     toward_zero
+        max_integer                   
+        min_integer                   30 or 62 bit integer, depending on word size
+        unknown                       error
+        apple                         true or false
+        unix                          true or false
+        windows                       true or false
+        address_bits                  32 or 64
+
+    No flags are changable, so there is no `set_prolog_flag/2`.
+
+        acyclic_term(+TERM)
+
+    Succeeds if TERM does not contain any cycles.
+
+        atom_length(+X, -Y)
+
+    Unifies Y with the number of characters in the atom X [ISO]
+
+        atom_concat(?X, ?Y, ?Z)
+
+    Concatenates the atoms or numbers X and Y, producing the atom Z
+    [ISO]
+
+        atomic_list_concat(+LIST, +ATOM)
+
+    Concatenates the atoms or numbers in LIST, producing the atom
+    ATOM.
+
+        split_string(+STRING, +SEPCHARS, +PADCHARS, -LIST) 
+
+    Splits STRING into a list of substrings, where substrings are
+    separated by any of the characters in the string SEPCHARS and
+    where each substring may be preceded or followed by the characters
+    in the string PADCHARS.
+
+        sub_atom(+ATOM, ?BEFORE, ?LENGTH, ?AFTER, ?SUBATOM)
+
+    Extracts the sub-atom of ATOM of length LENGTZH, with BEFORE and
+    AFTER characters before and after the extraction [ISO]
+
+        set_random_state(+INTEGER)
+
+    Sets the seed for the `random/1` arithmetic expression.
+
+        numbervars(?TERM, +START, -END)
+
+    Replaces unbound variables in TERM with structures of the form
+    `$VAR'(INDEX), where INDEX is a numeric index, starting at START.
+    END will be bound to the next available index after numbering all
+    variables in TERM [ISO]
+
+  - Predicates that are only available in the interpreter
+
+        trace                             
+
+    Enables "trace" mode that displays goals as they are executed.
+
+        call(+GOAL)
+
+    Invokes GOAL, which may be directly callable or a variable
+    containing such a goal.
+
+        consult(+FILE)            
+
+    Loads clauses in the given file into the clause-database, erasing
+    all previously stored clauses that have the same name and arity as
+    clauses in the consulted file.  If the file has the extension
+    ".pl", then this extension may be omitted. In "pi", this may also
+    be abbreviated as "[FILE, ...]", if given at the prompt.
+
+        ensure_loaded(+FILE)
+
+    The same as `consult/1`, but consults FILE only if it wasn't consulted
+    (or included) before. This predicate has the same semantics as
+    the `ensure_loaded/1` directive.
+
+
+Precedence of builtin operators
+-------------------------------
+
+    | Name             | Associativity | Precedence |
+    |------------------+---------------+------------|
+    | *                | yfx           |        400 |
+    | **               | xfx           |        200 |
+    | +                | fy            |        200 |
+    | +                | yfx           |        500 |
+    | ,                | xfy           |       1000 |
+    | -                | fy            |        200 |
+    | -                | yfx           |        500 |
+    | -->              | xfx           |       1200 |
+    | ->               | xfy           |       1050 |
+    | /                | yfx           |        400 |
+    | //               | yfx           |        400 |
+    | /\               | yfx           |        500 |
+    | :-               | fx            |       1200 |
+    | :-               | xfx           |       1200 |
+    | ;                | xfy           |       1100 |
+    | <                | xfx           |        700 |
+    | <<               | yfx           |        400 |
+    | =                | xfx           |        700 |
+    | =..              | xfx           |        700 |
+    | =:=              | xfx           |        700 |
+    | =<               | xfx           |        700 |
+    | ==               | xfx           |        700 |
+    | =\=              | xfx           |        700 |
+    | >                | xfx           |        700 |
+    | >=               | xfx           |        700 |
+    | >>               | yfx           |        400 |
+    | @<               | xfx           |        700 |
+    | @=<              | xfx           |        700 |
+    | @>               | xfx           |        700 |
+    | @>=              | xfx           |        700 |
+    | \                | fy            |        200 |
+    | \+               | fy            |        900 |
+    | \/               | yfx           |        500 |
+    | \=               | xfx           |        700 |
+    | \==              | xfx           |        700 |
+    | \\               | xfy           |        400 |
+    | ^                | xfy           |        200 |
+    | initialization   | fx            |       1150 |
+    | is               | xfx           |        700 |
+    | xor              | yfx           |        400 |
+    | |                | xfy           |       1105 |
+
+
+Directives
+----------
+
+  The following directives are available and can be declared using the
+  usual ":- DIRECTIVE, ... ." syntax. Note that some of these are
+  available only in compiled code, some only in interpreted code and
+  some in both (directives marked with "*" are ignored by the
+  interpreter):
+
+       compress_facts                           [compiler, interpreter*]
+
+  Equivalent to the `-compress-facts` compiler option.
+
+       trace_libraries                          [compiler, interpreter*]
+
+  Enable tracing for all code, including auto-included
+  libraries. Normally only the code of the user program is traced.
+
+       global_variable(NAME)                    [compiler]
+
+  Declares NAME as a global variable, accessible with `global_set/2` and
+  `global_ref/2`.
+ 
+       verbatim(CODE)                           [compiler]
+
+  Include CODE directly in the produced C file.  All code declared in
+  "verbatim" directives will be concatenated and emitted at the start
+  of the generated code, directly after the inclusion of "pc.h".
+
+       pre_initialization(GOAL)                 [compiler]
+
+  Declares GAOL to be a pre-initialization goal.  This is similar to
+  the "initialization" directive, but pre-initialization goals are run
+  before all normal initialization goals.
+
+       determinate PI, ...                      [compiler, interpreter*]
+
+  Declares the predicates specified in PI as being determinate, which
+  gives more opportunities for tail-call optimization. PI should be of
+  the form "<predicate-name>/<arity>" or "<predicate-name>".
+
+       discontiguous PI, ...                    [compiler]
+
+  Allows the clauses of the predicates indicated by PI to be
+  discontiguous in the source program [ISO]
+
+       mode PREDICATE(MODE, ...), ...           [compiler, interpreter*]
+
+  Declares that one or more predicates are always called with certain
+  types of arguments. MODE should be one of the atoms `+`, `-` or `?`
+  and indicates whether the argument will always be instantiated,
+  non-instantiated or of unknown type. This allows the compiler to
+  produce somewhat more efficient code in certain situations.
+
+       include(FILENAME)                        [compiler, interpreter]
+
+  Include the contents of FILENAME at the current position in the
+  source-code that contains this clause. If the file exists and has
+  the extension ".pl", then the extension may be omitted in the
+  directive. FILENAME may be of the form "library(ATOM)" [ISO]
+ 
+       initialization GOAL                      [compiler, interpreter]
+
+  Declares GOAL to be an initialization goal that will be invoked when
+  a compiled program is started or when a file given to the
+  interpreter on the command-line has been consulted.  Several
+  initialization goals may be declared and are invoked in the order in
+  which they appear in the source code [ISO]
+
+  In compiled code, the default initialization goal is `main/0`.
+                             
+      op(P, A, N)                               [compiler, interpreter]
+
+  Declares an operator - identical to `op/3`, but done before reading
+  any further clauses [ISO]
+
+      ensure_loaded(FILENAME)                   [compiler, interpreter]
+
+  Similar to "include", but only includes FILENAME if it has not been
+  earlier included using "ensure_loaded" or "include" (or "consult" in
+  the interpreter.) FILENAME may be of the form "library(ATOM)" [ISO]
+
+
+Performance tips
+----------------
+
+  Compiling the generated C code with "-DNDEBUG" will disable various
+  internal sanity checks and assertions, and will disable tracing.
+
+  Compile the generated C code with "-DUNSAFE" to disable all safety
+  checks (implies "-DNDEBUG".)
+
+  Compiling generated C code with "-DNO\_CHECK\_CYCLES" drops
+  cycle-checks in builtin operations (this does not affect
+  `acyclic_term/1`).
+
+  Asserting and retrieving terms in the record- or clause-database
+  involves copying and thus should be avoided in time-critical code.
+
+  Any use of `delay/2`, `freeze/2` or `dif/2` will have a detrimental impact
+  on overall performance.
+
+  As large sets of facts can increase Code-size and C compile-times
+  considerably, a mode is provided that reduces the amount of code
+  generated for sets of body-less clauses, provided all arguments in
+  the definition are ground. This has a negative impact on overall
+  speed but scales better in programs that use large fact databases.
+  To use this feature, compile your program with the "-compress-facts"
+  option.
+
+  For large programs it may be necessary to increase the sizes of one
+  or more data areas in the compiler (which is itself just another
+  Prolog program.) In such a case, use the appropriate runtime options
+  to increase the default sizes, as described in the "Limitations"
+  section.
+
+  You can use the built-in statistical profiler to examine the time
+  spent in the predicates of your program by compiling the generated C
+  code with the "-DPROFILE" C compiler option. On successful
+  termination, a file named "PROFILE.<pid>" is generated in the
+  current working directory and holds a list of predicates, with a
+  count-number, the number of seconds spent in the predicate and the
+  percentage of the total run-time.
+
+  The profiler works by running a separate thread that probes at
+  regular intervals which predicate is currently executing and
+  increases a predicate-specific counter. Before the program
+  terminates, the total running time is divided by the total number of
+  counts and the predicate-specific counts are then correlated with
+  the overall time. This is not completely accurate but should be good
+  enough to get an idea of the relative distribution of run-time
+  required by specific parts of your program. Note that the reported
+  time only specifies the time in the predicate alone, not in called
+  predicates, so the time does not include nested calls.
+
+  To use performance-profiling, the executable must be linked with the
+  "pthread" library (pass "-lpthread" when compiling the generated C
+  code.)
+
+  There is also an experimental memory-profiler, which gathers some
+  information about heap-allocations and the sizes of various stacks.
+  When you compile your program with "-DPROFILE_MEMORY", a file is
+  generated (similar to using "-DPROFILE") containing entries of the
+  form
+
+    <predicate name>   C: <cp>   T: <trail>  E: <env>  H: <heap>
+
+  The meaning of the values is as follows:
+
+  * "<cp>": the average amount of choice-point stack above required by
+    this predicate (and all called predicates), at the point when the
+    predicate exited successfully or failed.
+
+  * "<trail>": the average amount of trail-stack space required by
+    this predicate (and all callees), at the point of exit or fail.
+
+  * "<env>": the average amount of environment-stack space required by
+    this predicate (and all called predicates), also at exit or fail.
+
+  * "<heap>": the total amount of heap-space allocated by this
+    predicate, over all invocations.
+
+  All sizes are in bytes.
+
+
+Calling code written in other languages
+---------------------------------------
+
+  To call foreign functions, a single form named `foreign_call` is
+  provided. `foreign_call/1` takes a structure that names the function
+  to be called and holds the arguments to be passed. The function
+  should take as many arguments as the structure (plus 1) and return
+  an integer, indicating whether the foreign call failed (0) or
+  succeeded (1). The first argument is a `CHOICE_POINT *`, a pointer
+  to current entry on the choice-point stack. Further arguments are of
+  type `X`, a generic union type which is either an immediate small
+  integer ("fixnum") or a pointer to a non-immediate data object. See
+  `pc.h` in the distributed source for more information about the
+  internal data layout. All arguments are dereferenced on entry (that
+  is, veriables are resolved as much as possible, but not in nested
+  data).
+
+  C code can be embedded in the compiled program using the `verbatim`
+  directive. The text given will be emitted directly in the generated
+  code, after the inclusion of the "pc.h" header file.
+
+  Values used from C will only be valid until a garbage collection is
+  triggered, which subsequently moves all live data. Therefor
+  references to Prolog data will become invalid, unless saved in the
+  "global" variables vector", a separate buffer that may be used to
+  keep "live" references to heap-allocated data (only usable in code
+  compiled with `-DEMBEDDED`, see below for more information.)
+  
+  Note that the garbage collector ignores data that is not located in
+  the garbage-collected heap, so you can create Prolog data structures
+  in native code and pass them to Prolog without problems. You can use
+  `duplicate_term/2` to copy static data from native code into
+  dynamically allocated data located in the heap (but you must of
+  course free the old static data manually).
+
+  To get you started, here is a very simple example: let's add
+  an interface to the `gethostname(2)` UNIX API function.
+
+  ---
+
+    % gethostname.pl - implements Prolog-side 
+
+    :- verbatim('#include "mystuff.c").   % include header
+
+    % wrapper predicate
+    gethostname(N) :- foreign_call(my_gethostname(N1)).
+
+  --- 
+
+    /* mystuff.c - implements C-side */
+
+    #include <unistd.h>
+    #include <errno.h>
+
+    PRIMITIVE(my_gethostname, X name) {
+      char buffer[ 257 ];
+
+      if(gethostname(buffer, 256) < 0)
+        system_error(strerror(errno));  % throws exception
+
+      /* unifies value with output argument */
+      return unify(CSYMBOL(buffer), name);
+    }
+
+  ---
+
+    % test-hostname.pl
+
+    :- include('gethostname.pl').   % include interface
+
+    main :- gethostname(S), display(S), nl.  % and use it
+
+  ---
+
+  Notes:
+
+  - `PRIMITIVE()`, `unify()`, `CSTRING()` and `system_error()` are
+    only visible in compiled Prolog code. If you want to implement the
+    C part of your extension in a separate source-file, you can
+    include `pc.h`, but will have to do without some of the macros and
+    functions provided in `pc.h` (look for definitions guarded with
+    `COMPILED_PROLOG_PROGRAM`.)
+
+  - `PRIMITIVE()` is not strictly necessary. It only ensures the
+    result type is `int` and an implicit first argument of type
+    `CHOICE_POINT *` is passed. This argument _must_ be named `C0`, as
+    `unify()` actually is a macro that uses it.
+
+  - `CSYMBOL()` allocates a Prolog atom, from a zero-terminated C
+    string, in the garbage collected heap. There are variants to
+    allocate using an arbitrary allocation pointer, called
+    `CSYMBOL1()`, etc.
+
+  - `system_error()` throws an exception of type `system_error/1`.
+    You can also use `throw_exception()` to trigger an arbitrary
+    exception object, or `type_error()` to trigger an exception of
+    type `type_error/2`.
+
+  - `unify` is a macro, expanding into an inline test and a call to a
+    general unification routine. It is also only usable in compiled
+    prolog code. The result is an integer (1 on success or 0 on
+    failure.)
+
+  - You can add your extensions permanently to the compiler by adding
+    a `macro/2` clause in the file `builtin.pl` of the compiler
+    sources and adding a clause for `auto_include/3` (in the same
+    file), which ensures that a file is included automatically and
+    compiled with the original program. Finally copy your extension
+    file into the `lib` directory (wherever you chose to install it.)
+
+  - There isn't much information here - you really should study `pc.h`
+    if you want to interface to C code in earnest.
+
+  This is the low-level way of calling C code. The other is
+
+
+Automatic generation of wrapper-code
+------------------------------------
+
+  Also included in this Prolog implementation is "pb", a generator for
+  C and Prolog files intended to simplify the process of interfacing
+  to foreign code. It is called like this:
+
+    pb <FILENAME>
+
+  <FILENAME> should contain C variable-definitions and function
+  prototypes, from which "pb" will generate all code required to use
+  these in your own programs. Not all of C is allowed, but a simple
+  subset that should be sufficient for many uses. Two files will be
+  produced, "<FILENAME>.h" containing C code and "<FILENAME>.pl"
+  containing Prolog code that uses the former.
+
+  Comments are ignored, both C style comments ("/* ... */") and
+  C++/C99 style ("// ..."). Lines starting with "#" will be copied
+  unchanged into the ".h" file (including "... \" continuation lines).
+  All other text should be hold valid variable- or
+  function-definitions. You can re-use the binding-definitions file
+  for declaring function prototypes by passing the "-i" option to
+  "pb", which will add code to include "<FILENAME>" to the generated
+  ".h" file.
+
+  Variable definitions may be of the form
+
+    [STORAGECLASS] TYPE IDENTIFIER ["[" [SIZE] "]" ...] "," ...
+
+  (Elements in brackets are optional)
+
+  Function definitions should look like this:
+
+    [STORAGECLASS] [MODE] TYPE IDENTIFIER "(" [ARGUMENT "," ...] ")"
+
+  where ARGUMENT is
+
+    [DIRECTION] TYPE [IDENTIFIER ["[" [SIZE] "]" ...]]
+
+  Definitions may be followed by an option semicolon (";").
+
+  STORAGECLASS is optional and may be either "static" or "extern".
+  SIZE should be an integer, if given. IDENTIFIER should be a legal C
+  name and may be followed by `/* => REALNAME */`, which will result
+  in REALNAME being chosen for the Prolog wrapper.
+
+  If MODE is given and of the form "/* success */", then the result of
+  the C function will be interpreted as a boolean indicating success
+  or failure (and not as an additional "output" argument). "/* fail
+  */" means the opposite: a non-null results indicates failure.  "/*
+  fail: VARIABLE */" is the same as "fail", but sets the global
+  variable VARIABLE to the result (use another definition to access
+  this variable.)
+
+  TYPE is a basic type or opaque type, optionally decorated with one
+  or more "const", "unsigned" or "*" qualifiers. Basic types are
+  
+    void
+    char
+    short
+    int
+    long
+    float
+    double
+
+  An opaque type will be stored in as a byte-sequence in an atom and
+  extracted from such an atom when passed as an argument.
+
+  For every variable-definition, a Prolog predicate with one argument
+  is created for setting and getting the variables value, so a
+  variable definition like
+
+    int foo;
+    const double xpos, ypos;
+
+  will result in the predicates
+
+    foo(-X)
+    set_foo(+X)
+    xpos(-X)
+    ypos(-X)
+
+  For functions, a predicate taking as many arguments as the C function,
+  plus an additional argument for the result (if any) is created:
+
+    int bar(int, char *);
+
+  results in:
+
+    bar(+X, +Y, -Z)
+
+  A function with return-type "void" will have no final result
+  argument.
+
+  Argument and result conversion is as follows:
+
+    C type                  <->     Prolog type
+    --------------------------------------------------------------
+    int, short, char, long          integer
+    float, double                   float
+    char *                          atom (zero-terminated)
+    <any> *                         foreign-pointer
+    <opaque>                        atom
+    X                               <any>
+
+  Arguments of type "char *" and "X" are only valid until the next
+  garbage collection takes place, that is, whenever Prolog code
+  executes. The integer "0" represents a NULL pointer, both for
+  arguments and results of type "char *" and any other pointer type.
+
+  Finally, C "output" arguments are supported by preceding the
+  argument with a direction specifier, either `/* in */` or `/* out */`,
+  so
+
+    double modf /* => int_and_frac */ (double x, /* out */ double *intpart);
+
+  will produce:
+
+    int_and_frac(+X, -Y, -Z)
+
+  where Y will be unified with the "intpart" result and Z with
+  "modf"'s function result.
+
+
+Embedding
+---------
+
+  If you compile the C code with the "-DEMBEDDED" option, then the
+  program will not contain a "main()" function and can be called as a
+  library. The entry-point will have the following prototype:
+
+    extern X prolog(int argc, char *argv[], X arg, int *exit_code);
+
+  The first two arguments pass the command-line (even in embedded
+  mode), and should contain at least a single entry (what is normally
+  the program name.) You can pass command-line options, including
+  runtime options, here as usual. The compiled Prolog code will start
+  like any other non-embedded program, until `suspend/2` is invoked,
+  which passes its first argument to the caller of the "prolog()"
+  function (the result). Any re-invocation of "prolog()" will continue
+  the execution of the Prolog code at the state where the previous
+  execution was suspended, passing on the "arg" value to be unified
+  with the second argument of `suspend/2`.
+
+  All invocations of `prolog()` after the first _must_ pass `0` and
+  `NULL` as values for `argc` and `argv`.
+
+  Should the program terminate, `exit_code` will be set to the
+  exit status of the program, depending on how the program
+  terminated execution:
+
+    Reason                                      Exit code
+    -----------------------------------------------------------
+    halt/0                                      0
+    halt/1                                      <code>
+    Runtime-error / uncaught exception          EXIT_EXCEPTION
+    Normal termination                          EXIT_SUCCESS
+    Initialization goal(s) failed               EXIT_FAILURE
+
+  A second entry-point called "prolog_variable" is also available
+  to allow access to entries in the "global variable vector" 
+  (mentioned above):
+
+    extern X *prolog_variable(int index);
+
+  This returns a pointer to a slot in the global variables vector,
+  which can be set and retrieved. Values in this vector undergo
+  garbage collection and change their address after every invocation
+  of the Prolog side, but will not be collected and retain their
+  identity.
+
+  The name of the `prolog()` entry-point can be changed by redefining
+  the `ENTRY_POINT_NAME` macro when compiling the C code of an embedded
+  program. The name of the "prolog_variable()" access function can be
+  changes by redefining `VARIABLE_ACCESS_NAME`.
+
+  The compiled Prolog code is not reentrant or thread-safe.
+
+
+Limitations
+-----------
+
+  `call/1` and its variants are not available in the compiler, as are
+  `setof/3` and `bagof/3`. Goals passed to `catch/2`, `findall/3`, `forall/2`
+  and `'\+'/1` must be directly callable.
+
+  Integer numbers are limited to signed integers in a range of 31 bits
+  on 32-bit platforms and 63 bits on 64-bit platforms.
+
+  UNICODE is not supported, the system uses 8-bit character codes,
+  dependent on the default character set of the environment.
+
+  The system is fairly minimal but robust enough to execute many
+  Prolog programs. The compiler does provide very few error
+  diagnostics, mainly to keep it simple and straightforward to extend.
+
+  The garbage collector used is a simple Cheney-style[6] copying
+  collector and all storage for data-structures constructed at
+  run-time is allocated in this GC'd heap. Execution will stop when GC
+  occurs - to keep this interruption short it is advisable to reduce
+  the amount of memory used.
+
+  Depending on the nature of the executing program,
+  memory-requirements may vary accordingly. Currently, the system is
+  not overly memory-efficient with respect to choice-points,
+  environments and the trail-stack. Green cuts may be often necessary
+  to increase the frequency of tail-calls and avoid piling up too many
+  choice points.
+
+  Terms stored in the record- or clause-database are copied into
+  normal memory (allocated with malloc(3)) and are not subject to GC.
+  This means that the amount of data stored in databases is only
+  limited by available memory. Terms retrieved from the databases will
+  be copied back into the garbage-collected heap.
+
+  The data-areas used at run-time are listed here, together with their
+  default sizes. You can override the settings by redefining a macro
+  when compiling generated C code or by passing the appropriate
+  run-time command-line option to the final compiled executable.
+
+    Meaning             Macro                     R/T option      Default
+    ----------------------------------------------------------------------
+    Heap size           HEAP_SIZE                 -:h<SIZE>    100,000,000
+    Heap reserve        HEAP_RESERVE                                    20
+    Trail stack         TRAIL_STACK_SIZE          -:T<SIZE>      1,000,000
+    Choice-point stack  CHOICE_POINT_STACK_SIZE   -:C<SIZE>     10,000,000
+    Environment-stack   ENVIRONMENT_STACK_SIZE    -:E<SIZE>     10,000,000
+    Argument-stack      ARGUMENT_STACK_SIZE       -:A<SIZE>     10,000,000
+    Shared-term table   SHARED_TERM_TABLE_SIZE    -:S<SIZE>        100,000
+
+  All sizes are in bytes, with the exception of "heap reserve", which
+  is a percentage of the total heap-size, which is kept free to
+  simplify heap-exhaustion checks: once the amount of storage
+  currently in used exceeds the heap-size minus this percentage, a
+  garbage collection is triggered.
+
+  If you need a very large heap, you can use a file-backed
+  memory-mapped heap by starting a compiled program with the
+  "-:m<filename>" runtime option. This creates a file with the given
+  name and uses it as a backing store for the complete
+  garbage-collected heap. This file can be of arbitrary size.  Note
+  that the necessary swapping in and out of memory pages to and from
+  the file can be quite slow. This is an experimental feature and
+  hasn't been tested much.
+
+
+Version history
+---------------
+
+  - Version 7:
+
+    - Fix handling of command-line parsing for newer versions of SWI prolog
+      (reported by Xin Wang)
+
+  - Version 6:
+
+    - minor documentation changes.
+    - bugfix in `open_fd/4`.
+
+  - Version 5:
+
+    - "0xXXX" is accepted as syntax for hexadecimal numbers.
+    - Dropped `ord_seteq/2`, as it is equivalent to `==/2`
+    - The compiler now does some basic determinateness analysis for
+      predicates. Currently only calls following the definition of such
+      a predicate can take advantage of this.
+    - Added `-xrefall` compiler option.
+    - TRACE-mode is now enabled by default, unless NOTRACE, NDEBUG or
+      UNSAFE is defined.
+    - The compiler now removes predicates that are never used.
+    - `consult/1` ignores first line if it starts with "#".
+    - Added `atom_number/2`.
+    - Added `read_term/2` and `read_term/3`.
+    - Fixed problem in `findall/3` that caused failure of update
+      of global state variable in certain situations.
+    - Added `install` target to makefile.
+    - Passing variable in argument position with "+"-mode now throws
+      exception instead of terminating the program.
+    - `qp` was broken in a few places and can now override
+      PC_LIBRARY_DIR directly, if needed.
+    - `read` is now more robust with respect to operators in
+      argument-lists.
+    - `read` understands `\xXX` and `\OOO` escape sequences in quoted
+      strings and atoms.
+    - The interpreter didn't recognize '=..'/2
+
+
+  - Version 4:
+
+    - Various performance improvements.
+    - Added `mode/1`, `compress_facts` and `trace_libraries` directives.
+    - `current_prolog_flag/2`: added `address_bits(N)` flag.
+    - Added support for `discontiguous/1` directive, changed `determinate/1` 
+      into an operator.
+    - pb: handles "fail" mode (opposite of "success").
+    - The compiler skips the first line of the source-program if it
+      starts with `#`.
+    - `current_prolog_flag/2` understands apple, windows, unix
+    - Added builtins `put/2`, `tab/2`, `skip/2`, `get/2`, `get0/2`, `is_list/1`,
+      `exists_directory/1`, `atomic_list_concat/2`, `split_string/4`,
+      `sub_atom/5`, `append/2`, `read_line/2`, `read_string/3`,
+      `set_stream_position/2`, `close/2`, `chdir/1`, `getcwd/1`, `nth/3`,
+      `numbervars/3`, `stream_property/2`
+    - Added support for stream aliases `current_input`,
+      `current_output`, `user_input`, `user_output` and `user_error`.
+    - Dropped `peek/1`
+    - pi: Respects `PC_LIBRARY_DIR`.
+    - Removed `-I` option, added `-n`
+    - `PC_INCLUDE_PATH` has been renamed `PC_LIBRARY_DIR` and is only
+      allowed to contain a single directory.
+    - Filenames may now be `library(NAME)`, refering to the current
+      library directory.
+
+
+  - Version 3:
+
+    - Large sets of facts can be compiled more efficiently by using the
+      `-compress-facts` option.
+    - Reduced storage consumption in compiler.
+    - The routines for storing and retrieving terms to and from the
+      record- or clause database are now tail-recursive and handle
+      larger terms.
+    - SIGINT is handled and produces an exception (user\_interrupt),
+      if the platform supports it.
+    - Renamed `read_atom/2` to `read_string/2`.
+    - `read_string/2` and `read_line/1` return now character-code lists 
+      instead of atoms.
+    - New library predicates and builtins:
+      `char_code/2`, `atom_concat/3`, `atom_chars/2`, `atom_length/2`,
+      `current_input/1`, `current_output/1`, `number_chars/2`, `nl/1`,
+      `put_byte/1`, `put_byte/2`, `put_code/1`, `put_code/2`, `get_byte/1`,
+      `get_byte/2`, `get_code/1`, `get_code/2`, `peek_byte/1`, `peek_byte/2`,
+      `peek_code/1`, `peek_code/2`, `read/2`, `display/2`, `write/2`, `writeq/2`,
+      `put_char/1`, `put_char/2`, `get_char/1`, `get_char/2`, `peek_char/1`,
+      `peek_char/2`, `ground/1`, `rename_file/2`, `delete_file/1`, `once/1`,
+      `close/1`, `set_input/1`, `set_output/1`, `set_error_output/1`,
+      `at_end_of_stream/0`, `at_end_of_stream/1`, `flush_output/1`,
+      `acyclic_term/1`, `unify_with_occurs_check/2`, `current_prolog_flag/2`,
+      `read_line/1`, `duplicate_term/2`
+    - Renamed `flush/0` to `flush_output/0`.
+    - pi interpreter:
+      - More robust with respect to current I/O ports in case of
+        exceptions, also reduced memory usage across queries.
+      - Added -q option, also added some output when including/
+        consulting files.
+      - Undefined goals now throw an error.
+    - Handling of Single-element list in arithmetic expressions.
+    - Cycle-handling has been added to many builtins. May be disabled.
+    - Added `min/2` and `max/2` in arithmetic expressions.
+    - Added support for speed- and memory-profiling.
+    - String-canonicalization didn't handle empty strings.
+    - pb wrapper generator:
+      - "-i" option.
+      - handling "\" inside text (not followed by WS + NL)
+      - fixed handling zero-argument function with result.
+      - "/* success */" result modifier.
+    - Slightly faster db-key computation.
+    - Added `ensure_loaded/1` directive.
+
+  - Version 2:
+
+    - Many bugfixes, everywhere.
+    - Added "writef.pl" and "arith.pl" to library.
+    - Added primitive `read_atom/2`.
+    - The interpreter handles DCG rules now.
+    - Added "foreign pointer" type.
+    - Added support for coroutines (freeze + dif)
+    - The compiler does now second-level clause-indexing on structure 
+      terms.
+    - A few more tail-call opportunities are now detected.
+
+  - Version 1:
+
+    - Initial release.
+
+
+License
+-------
+
+  Copyright (c) 2015, Felix L. Winkelmann
+  All rights reserved.
+  
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions
+  are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+  3. The name of the authors may not be used to endorse or promote products
+     derived from this software without specific prior written permission.
+  
+  THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS OR
+  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+  IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+  This code uses a certain amount of code from the freely available
+  [DEC10 Prolog library][3]:
+
+  These files are all in the "public domain" so you can use them
+  freely, copy them, incorporate them into programs of your own and so
+  forth without payment.  The work of producing them in the first
+  place and of organising them as detailed here has been funded over
+  the years at Edinburgh University mainly by the Science and
+  Engineering Research Council.  Their dissemination has been
+  encouraged by the Alvey Special Interest Group: Artificial
+  Intelligence.  We would appreciate it if you were to acknowledge
+  these bodies when you use or re-distribute any of these files.
+
+
+[1]: http://en.wikipedia.org/wiki/Prolog
+
+[2]: http://www.swi-prolog.org
+
+[3]: http://www.cs.cmu.edu/afs/cs/project/ai-repository/ai/lang/prolog/code/tools/edinbrgh/0.html
+
+[4]: http://gcc.gnu.org
+
+[5]: http://clang.llvm.org
+
+[6]: http://en.wikipedia.org/wiki/Cheney%27s_algorithm
+
+[7]: http://www.call-with-current-continuation.org/prolog/
+
+[8]: http://bitbucket.org/bunny351/prolog/
+
+[9]: mailto:felix@call-with-current-continuation.org

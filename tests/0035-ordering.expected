@@ -1,0 +1,1444 @@
+123 @> 123	 -> no
+123 @< 123	 -> no
+123 @>= 123	 -> yes
+123 @=< 123	 -> yes
+123 @> 456	 -> no
+123 @< 456	 -> yes
+123 @>= 456	 -> no
+123 @=< 456	 -> yes
+123 @> 1.23	 -> yes
+123 @< 1.23	 -> no
+123 @>= 1.23	 -> yes
+123 @=< 1.23	 -> no
+123 @> 4.56	 -> yes
+123 @< 4.56	 -> no
+123 @>= 4.56	 -> yes
+123 @=< 4.56	 -> no
+123 @> _0	 -> yes
+123 @< _0	 -> no
+123 @>= _0	 -> yes
+123 @=< _0	 -> no
+123 @> _1	 -> yes
+123 @< _1	 -> no
+123 @>= _1	 -> yes
+123 @=< _1	 -> no
+123 @> abc	 -> no
+123 @< abc	 -> yes
+123 @>= abc	 -> no
+123 @=< abc	 -> yes
+123 @> def	 -> no
+123 @< def	 -> yes
+123 @>= def	 -> no
+123 @=< def	 -> yes
+123 @> ab	 -> no
+123 @< ab	 -> yes
+123 @>= ab	 -> no
+123 @=< ab	 -> yes
+123 @> abc	 -> no
+123 @< abc	 -> yes
+123 @>= abc	 -> no
+123 @=< abc	 -> yes
+123 @> []	 -> no
+123 @< []	 -> yes
+123 @>= []	 -> no
+123 @=< []	 -> yes
+123 @> [1,2]	 -> no
+123 @< [1,2]	 -> yes
+123 @>= [1,2]	 -> no
+123 @=< [1,2]	 -> yes
+123 @> [4,-1]	 -> no
+123 @< [4,-1]	 -> yes
+123 @>= [4,-1]	 -> no
+123 @=< [4,-1]	 -> yes
+123 @> foo(_2, b)	 -> no
+123 @< foo(_2, b)	 -> yes
+123 @>= foo(_2, b)	 -> no
+123 @=< foo(_2, b)	 -> yes
+123 @> bar(_3, b)	 -> no
+123 @< bar(_3, b)	 -> yes
+123 @>= bar(_3, b)	 -> no
+123 @=< bar(_3, b)	 -> yes
+123 @> bar(1, 2)	 -> no
+123 @< bar(1, 2)	 -> yes
+123 @>= bar(1, 2)	 -> no
+123 @=< bar(1, 2)	 -> yes
+123 @> bar(1)	 -> no
+123 @< bar(1)	 -> yes
+123 @>= bar(1)	 -> no
+123 @=< bar(1)	 -> yes
+123 @> [1|2]	 -> no
+123 @< [1|2]	 -> yes
+123 @>= [1|2]	 -> no
+123 @=< [1|2]	 -> yes
+123 @> []	 -> no
+123 @< []	 -> yes
+123 @>= []	 -> no
+123 @=< []	 -> yes
+456 @> 123	 -> yes
+456 @< 123	 -> no
+456 @>= 123	 -> yes
+456 @=< 123	 -> no
+456 @> 456	 -> no
+456 @< 456	 -> no
+456 @>= 456	 -> yes
+456 @=< 456	 -> yes
+456 @> 1.23	 -> yes
+456 @< 1.23	 -> no
+456 @>= 1.23	 -> yes
+456 @=< 1.23	 -> no
+456 @> 4.56	 -> yes
+456 @< 4.56	 -> no
+456 @>= 4.56	 -> yes
+456 @=< 4.56	 -> no
+456 @> _0	 -> yes
+456 @< _0	 -> no
+456 @>= _0	 -> yes
+456 @=< _0	 -> no
+456 @> _1	 -> yes
+456 @< _1	 -> no
+456 @>= _1	 -> yes
+456 @=< _1	 -> no
+456 @> abc	 -> no
+456 @< abc	 -> yes
+456 @>= abc	 -> no
+456 @=< abc	 -> yes
+456 @> def	 -> no
+456 @< def	 -> yes
+456 @>= def	 -> no
+456 @=< def	 -> yes
+456 @> ab	 -> no
+456 @< ab	 -> yes
+456 @>= ab	 -> no
+456 @=< ab	 -> yes
+456 @> abc	 -> no
+456 @< abc	 -> yes
+456 @>= abc	 -> no
+456 @=< abc	 -> yes
+456 @> []	 -> no
+456 @< []	 -> yes
+456 @>= []	 -> no
+456 @=< []	 -> yes
+456 @> [1,2]	 -> no
+456 @< [1,2]	 -> yes
+456 @>= [1,2]	 -> no
+456 @=< [1,2]	 -> yes
+456 @> [4,-1]	 -> no
+456 @< [4,-1]	 -> yes
+456 @>= [4,-1]	 -> no
+456 @=< [4,-1]	 -> yes
+456 @> foo(_2, b)	 -> no
+456 @< foo(_2, b)	 -> yes
+456 @>= foo(_2, b)	 -> no
+456 @=< foo(_2, b)	 -> yes
+456 @> bar(_3, b)	 -> no
+456 @< bar(_3, b)	 -> yes
+456 @>= bar(_3, b)	 -> no
+456 @=< bar(_3, b)	 -> yes
+456 @> bar(1, 2)	 -> no
+456 @< bar(1, 2)	 -> yes
+456 @>= bar(1, 2)	 -> no
+456 @=< bar(1, 2)	 -> yes
+456 @> bar(1)	 -> no
+456 @< bar(1)	 -> yes
+456 @>= bar(1)	 -> no
+456 @=< bar(1)	 -> yes
+456 @> [1|2]	 -> no
+456 @< [1|2]	 -> yes
+456 @>= [1|2]	 -> no
+456 @=< [1|2]	 -> yes
+456 @> []	 -> no
+456 @< []	 -> yes
+456 @>= []	 -> no
+456 @=< []	 -> yes
+1.23 @> 123	 -> no
+1.23 @< 123	 -> yes
+1.23 @>= 123	 -> no
+1.23 @=< 123	 -> yes
+1.23 @> 456	 -> no
+1.23 @< 456	 -> yes
+1.23 @>= 456	 -> no
+1.23 @=< 456	 -> yes
+1.23 @> 1.23	 -> no
+1.23 @< 1.23	 -> no
+1.23 @>= 1.23	 -> yes
+1.23 @=< 1.23	 -> yes
+1.23 @> 4.56	 -> no
+1.23 @< 4.56	 -> yes
+1.23 @>= 4.56	 -> no
+1.23 @=< 4.56	 -> yes
+1.23 @> _0	 -> yes
+1.23 @< _0	 -> no
+1.23 @>= _0	 -> yes
+1.23 @=< _0	 -> no
+1.23 @> _1	 -> yes
+1.23 @< _1	 -> no
+1.23 @>= _1	 -> yes
+1.23 @=< _1	 -> no
+1.23 @> abc	 -> no
+1.23 @< abc	 -> yes
+1.23 @>= abc	 -> no
+1.23 @=< abc	 -> yes
+1.23 @> def	 -> no
+1.23 @< def	 -> yes
+1.23 @>= def	 -> no
+1.23 @=< def	 -> yes
+1.23 @> ab	 -> no
+1.23 @< ab	 -> yes
+1.23 @>= ab	 -> no
+1.23 @=< ab	 -> yes
+1.23 @> abc	 -> no
+1.23 @< abc	 -> yes
+1.23 @>= abc	 -> no
+1.23 @=< abc	 -> yes
+1.23 @> []	 -> no
+1.23 @< []	 -> yes
+1.23 @>= []	 -> no
+1.23 @=< []	 -> yes
+1.23 @> [1,2]	 -> no
+1.23 @< [1,2]	 -> yes
+1.23 @>= [1,2]	 -> no
+1.23 @=< [1,2]	 -> yes
+1.23 @> [4,-1]	 -> no
+1.23 @< [4,-1]	 -> yes
+1.23 @>= [4,-1]	 -> no
+1.23 @=< [4,-1]	 -> yes
+1.23 @> foo(_2, b)	 -> no
+1.23 @< foo(_2, b)	 -> yes
+1.23 @>= foo(_2, b)	 -> no
+1.23 @=< foo(_2, b)	 -> yes
+1.23 @> bar(_3, b)	 -> no
+1.23 @< bar(_3, b)	 -> yes
+1.23 @>= bar(_3, b)	 -> no
+1.23 @=< bar(_3, b)	 -> yes
+1.23 @> bar(1, 2)	 -> no
+1.23 @< bar(1, 2)	 -> yes
+1.23 @>= bar(1, 2)	 -> no
+1.23 @=< bar(1, 2)	 -> yes
+1.23 @> bar(1)	 -> no
+1.23 @< bar(1)	 -> yes
+1.23 @>= bar(1)	 -> no
+1.23 @=< bar(1)	 -> yes
+1.23 @> [1|2]	 -> no
+1.23 @< [1|2]	 -> yes
+1.23 @>= [1|2]	 -> no
+1.23 @=< [1|2]	 -> yes
+1.23 @> []	 -> no
+1.23 @< []	 -> yes
+1.23 @>= []	 -> no
+1.23 @=< []	 -> yes
+4.56 @> 123	 -> no
+4.56 @< 123	 -> yes
+4.56 @>= 123	 -> no
+4.56 @=< 123	 -> yes
+4.56 @> 456	 -> no
+4.56 @< 456	 -> yes
+4.56 @>= 456	 -> no
+4.56 @=< 456	 -> yes
+4.56 @> 1.23	 -> yes
+4.56 @< 1.23	 -> no
+4.56 @>= 1.23	 -> yes
+4.56 @=< 1.23	 -> no
+4.56 @> 4.56	 -> no
+4.56 @< 4.56	 -> no
+4.56 @>= 4.56	 -> yes
+4.56 @=< 4.56	 -> yes
+4.56 @> _0	 -> yes
+4.56 @< _0	 -> no
+4.56 @>= _0	 -> yes
+4.56 @=< _0	 -> no
+4.56 @> _1	 -> yes
+4.56 @< _1	 -> no
+4.56 @>= _1	 -> yes
+4.56 @=< _1	 -> no
+4.56 @> abc	 -> no
+4.56 @< abc	 -> yes
+4.56 @>= abc	 -> no
+4.56 @=< abc	 -> yes
+4.56 @> def	 -> no
+4.56 @< def	 -> yes
+4.56 @>= def	 -> no
+4.56 @=< def	 -> yes
+4.56 @> ab	 -> no
+4.56 @< ab	 -> yes
+4.56 @>= ab	 -> no
+4.56 @=< ab	 -> yes
+4.56 @> abc	 -> no
+4.56 @< abc	 -> yes
+4.56 @>= abc	 -> no
+4.56 @=< abc	 -> yes
+4.56 @> []	 -> no
+4.56 @< []	 -> yes
+4.56 @>= []	 -> no
+4.56 @=< []	 -> yes
+4.56 @> [1,2]	 -> no
+4.56 @< [1,2]	 -> yes
+4.56 @>= [1,2]	 -> no
+4.56 @=< [1,2]	 -> yes
+4.56 @> [4,-1]	 -> no
+4.56 @< [4,-1]	 -> yes
+4.56 @>= [4,-1]	 -> no
+4.56 @=< [4,-1]	 -> yes
+4.56 @> foo(_2, b)	 -> no
+4.56 @< foo(_2, b)	 -> yes
+4.56 @>= foo(_2, b)	 -> no
+4.56 @=< foo(_2, b)	 -> yes
+4.56 @> bar(_3, b)	 -> no
+4.56 @< bar(_3, b)	 -> yes
+4.56 @>= bar(_3, b)	 -> no
+4.56 @=< bar(_3, b)	 -> yes
+4.56 @> bar(1, 2)	 -> no
+4.56 @< bar(1, 2)	 -> yes
+4.56 @>= bar(1, 2)	 -> no
+4.56 @=< bar(1, 2)	 -> yes
+4.56 @> bar(1)	 -> no
+4.56 @< bar(1)	 -> yes
+4.56 @>= bar(1)	 -> no
+4.56 @=< bar(1)	 -> yes
+4.56 @> [1|2]	 -> no
+4.56 @< [1|2]	 -> yes
+4.56 @>= [1|2]	 -> no
+4.56 @=< [1|2]	 -> yes
+4.56 @> []	 -> no
+4.56 @< []	 -> yes
+4.56 @>= []	 -> no
+4.56 @=< []	 -> yes
+_0 @> 123	 -> no
+_0 @< 123	 -> yes
+_0 @>= 123	 -> no
+_0 @=< 123	 -> yes
+_0 @> 456	 -> no
+_0 @< 456	 -> yes
+_0 @>= 456	 -> no
+_0 @=< 456	 -> yes
+_0 @> 1.23	 -> no
+_0 @< 1.23	 -> yes
+_0 @>= 1.23	 -> no
+_0 @=< 1.23	 -> yes
+_0 @> 4.56	 -> no
+_0 @< 4.56	 -> yes
+_0 @>= 4.56	 -> no
+_0 @=< 4.56	 -> yes
+_0 @> _0	 -> no
+_0 @< _0	 -> no
+_0 @>= _0	 -> yes
+_0 @=< _0	 -> yes
+_0 @> _1	 -> no
+_0 @< _1	 -> yes
+_0 @>= _1	 -> no
+_0 @=< _1	 -> yes
+_0 @> abc	 -> no
+_0 @< abc	 -> yes
+_0 @>= abc	 -> no
+_0 @=< abc	 -> yes
+_0 @> def	 -> no
+_0 @< def	 -> yes
+_0 @>= def	 -> no
+_0 @=< def	 -> yes
+_0 @> ab	 -> no
+_0 @< ab	 -> yes
+_0 @>= ab	 -> no
+_0 @=< ab	 -> yes
+_0 @> abc	 -> no
+_0 @< abc	 -> yes
+_0 @>= abc	 -> no
+_0 @=< abc	 -> yes
+_0 @> []	 -> no
+_0 @< []	 -> yes
+_0 @>= []	 -> no
+_0 @=< []	 -> yes
+_0 @> [1,2]	 -> no
+_0 @< [1,2]	 -> yes
+_0 @>= [1,2]	 -> no
+_0 @=< [1,2]	 -> yes
+_0 @> [4,-1]	 -> no
+_0 @< [4,-1]	 -> yes
+_0 @>= [4,-1]	 -> no
+_0 @=< [4,-1]	 -> yes
+_0 @> foo(_2, b)	 -> no
+_0 @< foo(_2, b)	 -> yes
+_0 @>= foo(_2, b)	 -> no
+_0 @=< foo(_2, b)	 -> yes
+_0 @> bar(_3, b)	 -> no
+_0 @< bar(_3, b)	 -> yes
+_0 @>= bar(_3, b)	 -> no
+_0 @=< bar(_3, b)	 -> yes
+_0 @> bar(1, 2)	 -> no
+_0 @< bar(1, 2)	 -> yes
+_0 @>= bar(1, 2)	 -> no
+_0 @=< bar(1, 2)	 -> yes
+_0 @> bar(1)	 -> no
+_0 @< bar(1)	 -> yes
+_0 @>= bar(1)	 -> no
+_0 @=< bar(1)	 -> yes
+_0 @> [1|2]	 -> no
+_0 @< [1|2]	 -> yes
+_0 @>= [1|2]	 -> no
+_0 @=< [1|2]	 -> yes
+_0 @> []	 -> no
+_0 @< []	 -> yes
+_0 @>= []	 -> no
+_0 @=< []	 -> yes
+_1 @> 123	 -> no
+_1 @< 123	 -> yes
+_1 @>= 123	 -> no
+_1 @=< 123	 -> yes
+_1 @> 456	 -> no
+_1 @< 456	 -> yes
+_1 @>= 456	 -> no
+_1 @=< 456	 -> yes
+_1 @> 1.23	 -> no
+_1 @< 1.23	 -> yes
+_1 @>= 1.23	 -> no
+_1 @=< 1.23	 -> yes
+_1 @> 4.56	 -> no
+_1 @< 4.56	 -> yes
+_1 @>= 4.56	 -> no
+_1 @=< 4.56	 -> yes
+_1 @> _0	 -> yes
+_1 @< _0	 -> no
+_1 @>= _0	 -> yes
+_1 @=< _0	 -> no
+_1 @> _1	 -> no
+_1 @< _1	 -> no
+_1 @>= _1	 -> yes
+_1 @=< _1	 -> yes
+_1 @> abc	 -> no
+_1 @< abc	 -> yes
+_1 @>= abc	 -> no
+_1 @=< abc	 -> yes
+_1 @> def	 -> no
+_1 @< def	 -> yes
+_1 @>= def	 -> no
+_1 @=< def	 -> yes
+_1 @> ab	 -> no
+_1 @< ab	 -> yes
+_1 @>= ab	 -> no
+_1 @=< ab	 -> yes
+_1 @> abc	 -> no
+_1 @< abc	 -> yes
+_1 @>= abc	 -> no
+_1 @=< abc	 -> yes
+_1 @> []	 -> no
+_1 @< []	 -> yes
+_1 @>= []	 -> no
+_1 @=< []	 -> yes
+_1 @> [1,2]	 -> no
+_1 @< [1,2]	 -> yes
+_1 @>= [1,2]	 -> no
+_1 @=< [1,2]	 -> yes
+_1 @> [4,-1]	 -> no
+_1 @< [4,-1]	 -> yes
+_1 @>= [4,-1]	 -> no
+_1 @=< [4,-1]	 -> yes
+_1 @> foo(_2, b)	 -> no
+_1 @< foo(_2, b)	 -> yes
+_1 @>= foo(_2, b)	 -> no
+_1 @=< foo(_2, b)	 -> yes
+_1 @> bar(_3, b)	 -> no
+_1 @< bar(_3, b)	 -> yes
+_1 @>= bar(_3, b)	 -> no
+_1 @=< bar(_3, b)	 -> yes
+_1 @> bar(1, 2)	 -> no
+_1 @< bar(1, 2)	 -> yes
+_1 @>= bar(1, 2)	 -> no
+_1 @=< bar(1, 2)	 -> yes
+_1 @> bar(1)	 -> no
+_1 @< bar(1)	 -> yes
+_1 @>= bar(1)	 -> no
+_1 @=< bar(1)	 -> yes
+_1 @> [1|2]	 -> no
+_1 @< [1|2]	 -> yes
+_1 @>= [1|2]	 -> no
+_1 @=< [1|2]	 -> yes
+_1 @> []	 -> no
+_1 @< []	 -> yes
+_1 @>= []	 -> no
+_1 @=< []	 -> yes
+abc @> 123	 -> yes
+abc @< 123	 -> no
+abc @>= 123	 -> yes
+abc @=< 123	 -> no
+abc @> 456	 -> yes
+abc @< 456	 -> no
+abc @>= 456	 -> yes
+abc @=< 456	 -> no
+abc @> 1.23	 -> yes
+abc @< 1.23	 -> no
+abc @>= 1.23	 -> yes
+abc @=< 1.23	 -> no
+abc @> 4.56	 -> yes
+abc @< 4.56	 -> no
+abc @>= 4.56	 -> yes
+abc @=< 4.56	 -> no
+abc @> _0	 -> yes
+abc @< _0	 -> no
+abc @>= _0	 -> yes
+abc @=< _0	 -> no
+abc @> _1	 -> yes
+abc @< _1	 -> no
+abc @>= _1	 -> yes
+abc @=< _1	 -> no
+abc @> abc	 -> no
+abc @< abc	 -> no
+abc @>= abc	 -> yes
+abc @=< abc	 -> yes
+abc @> def	 -> no
+abc @< def	 -> yes
+abc @>= def	 -> no
+abc @=< def	 -> yes
+abc @> ab	 -> yes
+abc @< ab	 -> no
+abc @>= ab	 -> yes
+abc @=< ab	 -> no
+abc @> abc	 -> no
+abc @< abc	 -> no
+abc @>= abc	 -> yes
+abc @=< abc	 -> yes
+abc @> []	 -> yes
+abc @< []	 -> no
+abc @>= []	 -> yes
+abc @=< []	 -> no
+abc @> [1,2]	 -> no
+abc @< [1,2]	 -> yes
+abc @>= [1,2]	 -> no
+abc @=< [1,2]	 -> yes
+abc @> [4,-1]	 -> no
+abc @< [4,-1]	 -> yes
+abc @>= [4,-1]	 -> no
+abc @=< [4,-1]	 -> yes
+abc @> foo(_2, b)	 -> no
+abc @< foo(_2, b)	 -> yes
+abc @>= foo(_2, b)	 -> no
+abc @=< foo(_2, b)	 -> yes
+abc @> bar(_3, b)	 -> no
+abc @< bar(_3, b)	 -> yes
+abc @>= bar(_3, b)	 -> no
+abc @=< bar(_3, b)	 -> yes
+abc @> bar(1, 2)	 -> no
+abc @< bar(1, 2)	 -> yes
+abc @>= bar(1, 2)	 -> no
+abc @=< bar(1, 2)	 -> yes
+abc @> bar(1)	 -> no
+abc @< bar(1)	 -> yes
+abc @>= bar(1)	 -> no
+abc @=< bar(1)	 -> yes
+abc @> [1|2]	 -> no
+abc @< [1|2]	 -> yes
+abc @>= [1|2]	 -> no
+abc @=< [1|2]	 -> yes
+abc @> []	 -> yes
+abc @< []	 -> no
+abc @>= []	 -> yes
+abc @=< []	 -> no
+def @> 123	 -> yes
+def @< 123	 -> no
+def @>= 123	 -> yes
+def @=< 123	 -> no
+def @> 456	 -> yes
+def @< 456	 -> no
+def @>= 456	 -> yes
+def @=< 456	 -> no
+def @> 1.23	 -> yes
+def @< 1.23	 -> no
+def @>= 1.23	 -> yes
+def @=< 1.23	 -> no
+def @> 4.56	 -> yes
+def @< 4.56	 -> no
+def @>= 4.56	 -> yes
+def @=< 4.56	 -> no
+def @> _0	 -> yes
+def @< _0	 -> no
+def @>= _0	 -> yes
+def @=< _0	 -> no
+def @> _1	 -> yes
+def @< _1	 -> no
+def @>= _1	 -> yes
+def @=< _1	 -> no
+def @> abc	 -> yes
+def @< abc	 -> no
+def @>= abc	 -> yes
+def @=< abc	 -> no
+def @> def	 -> no
+def @< def	 -> no
+def @>= def	 -> yes
+def @=< def	 -> yes
+def @> ab	 -> yes
+def @< ab	 -> no
+def @>= ab	 -> yes
+def @=< ab	 -> no
+def @> abc	 -> yes
+def @< abc	 -> no
+def @>= abc	 -> yes
+def @=< abc	 -> no
+def @> []	 -> yes
+def @< []	 -> no
+def @>= []	 -> yes
+def @=< []	 -> no
+def @> [1,2]	 -> no
+def @< [1,2]	 -> yes
+def @>= [1,2]	 -> no
+def @=< [1,2]	 -> yes
+def @> [4,-1]	 -> no
+def @< [4,-1]	 -> yes
+def @>= [4,-1]	 -> no
+def @=< [4,-1]	 -> yes
+def @> foo(_2, b)	 -> no
+def @< foo(_2, b)	 -> yes
+def @>= foo(_2, b)	 -> no
+def @=< foo(_2, b)	 -> yes
+def @> bar(_3, b)	 -> no
+def @< bar(_3, b)	 -> yes
+def @>= bar(_3, b)	 -> no
+def @=< bar(_3, b)	 -> yes
+def @> bar(1, 2)	 -> no
+def @< bar(1, 2)	 -> yes
+def @>= bar(1, 2)	 -> no
+def @=< bar(1, 2)	 -> yes
+def @> bar(1)	 -> no
+def @< bar(1)	 -> yes
+def @>= bar(1)	 -> no
+def @=< bar(1)	 -> yes
+def @> [1|2]	 -> no
+def @< [1|2]	 -> yes
+def @>= [1|2]	 -> no
+def @=< [1|2]	 -> yes
+def @> []	 -> yes
+def @< []	 -> no
+def @>= []	 -> yes
+def @=< []	 -> no
+ab @> 123	 -> yes
+ab @< 123	 -> no
+ab @>= 123	 -> yes
+ab @=< 123	 -> no
+ab @> 456	 -> yes
+ab @< 456	 -> no
+ab @>= 456	 -> yes
+ab @=< 456	 -> no
+ab @> 1.23	 -> yes
+ab @< 1.23	 -> no
+ab @>= 1.23	 -> yes
+ab @=< 1.23	 -> no
+ab @> 4.56	 -> yes
+ab @< 4.56	 -> no
+ab @>= 4.56	 -> yes
+ab @=< 4.56	 -> no
+ab @> _0	 -> yes
+ab @< _0	 -> no
+ab @>= _0	 -> yes
+ab @=< _0	 -> no
+ab @> _1	 -> yes
+ab @< _1	 -> no
+ab @>= _1	 -> yes
+ab @=< _1	 -> no
+ab @> abc	 -> no
+ab @< abc	 -> yes
+ab @>= abc	 -> no
+ab @=< abc	 -> yes
+ab @> def	 -> no
+ab @< def	 -> yes
+ab @>= def	 -> no
+ab @=< def	 -> yes
+ab @> ab	 -> no
+ab @< ab	 -> no
+ab @>= ab	 -> yes
+ab @=< ab	 -> yes
+ab @> abc	 -> no
+ab @< abc	 -> yes
+ab @>= abc	 -> no
+ab @=< abc	 -> yes
+ab @> []	 -> yes
+ab @< []	 -> no
+ab @>= []	 -> yes
+ab @=< []	 -> no
+ab @> [1,2]	 -> no
+ab @< [1,2]	 -> yes
+ab @>= [1,2]	 -> no
+ab @=< [1,2]	 -> yes
+ab @> [4,-1]	 -> no
+ab @< [4,-1]	 -> yes
+ab @>= [4,-1]	 -> no
+ab @=< [4,-1]	 -> yes
+ab @> foo(_2, b)	 -> no
+ab @< foo(_2, b)	 -> yes
+ab @>= foo(_2, b)	 -> no
+ab @=< foo(_2, b)	 -> yes
+ab @> bar(_3, b)	 -> no
+ab @< bar(_3, b)	 -> yes
+ab @>= bar(_3, b)	 -> no
+ab @=< bar(_3, b)	 -> yes
+ab @> bar(1, 2)	 -> no
+ab @< bar(1, 2)	 -> yes
+ab @>= bar(1, 2)	 -> no
+ab @=< bar(1, 2)	 -> yes
+ab @> bar(1)	 -> no
+ab @< bar(1)	 -> yes
+ab @>= bar(1)	 -> no
+ab @=< bar(1)	 -> yes
+ab @> [1|2]	 -> no
+ab @< [1|2]	 -> yes
+ab @>= [1|2]	 -> no
+ab @=< [1|2]	 -> yes
+ab @> []	 -> yes
+ab @< []	 -> no
+ab @>= []	 -> yes
+ab @=< []	 -> no
+abc @> 123	 -> yes
+abc @< 123	 -> no
+abc @>= 123	 -> yes
+abc @=< 123	 -> no
+abc @> 456	 -> yes
+abc @< 456	 -> no
+abc @>= 456	 -> yes
+abc @=< 456	 -> no
+abc @> 1.23	 -> yes
+abc @< 1.23	 -> no
+abc @>= 1.23	 -> yes
+abc @=< 1.23	 -> no
+abc @> 4.56	 -> yes
+abc @< 4.56	 -> no
+abc @>= 4.56	 -> yes
+abc @=< 4.56	 -> no
+abc @> _0	 -> yes
+abc @< _0	 -> no
+abc @>= _0	 -> yes
+abc @=< _0	 -> no
+abc @> _1	 -> yes
+abc @< _1	 -> no
+abc @>= _1	 -> yes
+abc @=< _1	 -> no
+abc @> abc	 -> no
+abc @< abc	 -> no
+abc @>= abc	 -> yes
+abc @=< abc	 -> yes
+abc @> def	 -> no
+abc @< def	 -> yes
+abc @>= def	 -> no
+abc @=< def	 -> yes
+abc @> ab	 -> yes
+abc @< ab	 -> no
+abc @>= ab	 -> yes
+abc @=< ab	 -> no
+abc @> abc	 -> no
+abc @< abc	 -> no
+abc @>= abc	 -> yes
+abc @=< abc	 -> yes
+abc @> []	 -> yes
+abc @< []	 -> no
+abc @>= []	 -> yes
+abc @=< []	 -> no
+abc @> [1,2]	 -> no
+abc @< [1,2]	 -> yes
+abc @>= [1,2]	 -> no
+abc @=< [1,2]	 -> yes
+abc @> [4,-1]	 -> no
+abc @< [4,-1]	 -> yes
+abc @>= [4,-1]	 -> no
+abc @=< [4,-1]	 -> yes
+abc @> foo(_2, b)	 -> no
+abc @< foo(_2, b)	 -> yes
+abc @>= foo(_2, b)	 -> no
+abc @=< foo(_2, b)	 -> yes
+abc @> bar(_3, b)	 -> no
+abc @< bar(_3, b)	 -> yes
+abc @>= bar(_3, b)	 -> no
+abc @=< bar(_3, b)	 -> yes
+abc @> bar(1, 2)	 -> no
+abc @< bar(1, 2)	 -> yes
+abc @>= bar(1, 2)	 -> no
+abc @=< bar(1, 2)	 -> yes
+abc @> bar(1)	 -> no
+abc @< bar(1)	 -> yes
+abc @>= bar(1)	 -> no
+abc @=< bar(1)	 -> yes
+abc @> [1|2]	 -> no
+abc @< [1|2]	 -> yes
+abc @>= [1|2]	 -> no
+abc @=< [1|2]	 -> yes
+abc @> []	 -> yes
+abc @< []	 -> no
+abc @>= []	 -> yes
+abc @=< []	 -> no
+[] @> 123	 -> yes
+[] @< 123	 -> no
+[] @>= 123	 -> yes
+[] @=< 123	 -> no
+[] @> 456	 -> yes
+[] @< 456	 -> no
+[] @>= 456	 -> yes
+[] @=< 456	 -> no
+[] @> 1.23	 -> yes
+[] @< 1.23	 -> no
+[] @>= 1.23	 -> yes
+[] @=< 1.23	 -> no
+[] @> 4.56	 -> yes
+[] @< 4.56	 -> no
+[] @>= 4.56	 -> yes
+[] @=< 4.56	 -> no
+[] @> _0	 -> yes
+[] @< _0	 -> no
+[] @>= _0	 -> yes
+[] @=< _0	 -> no
+[] @> _1	 -> yes
+[] @< _1	 -> no
+[] @>= _1	 -> yes
+[] @=< _1	 -> no
+[] @> abc	 -> no
+[] @< abc	 -> yes
+[] @>= abc	 -> no
+[] @=< abc	 -> yes
+[] @> def	 -> no
+[] @< def	 -> yes
+[] @>= def	 -> no
+[] @=< def	 -> yes
+[] @> ab	 -> no
+[] @< ab	 -> yes
+[] @>= ab	 -> no
+[] @=< ab	 -> yes
+[] @> abc	 -> no
+[] @< abc	 -> yes
+[] @>= abc	 -> no
+[] @=< abc	 -> yes
+[] @> []	 -> no
+[] @< []	 -> no
+[] @>= []	 -> yes
+[] @=< []	 -> yes
+[] @> [1,2]	 -> no
+[] @< [1,2]	 -> yes
+[] @>= [1,2]	 -> no
+[] @=< [1,2]	 -> yes
+[] @> [4,-1]	 -> no
+[] @< [4,-1]	 -> yes
+[] @>= [4,-1]	 -> no
+[] @=< [4,-1]	 -> yes
+[] @> foo(_2, b)	 -> no
+[] @< foo(_2, b)	 -> yes
+[] @>= foo(_2, b)	 -> no
+[] @=< foo(_2, b)	 -> yes
+[] @> bar(_3, b)	 -> no
+[] @< bar(_3, b)	 -> yes
+[] @>= bar(_3, b)	 -> no
+[] @=< bar(_3, b)	 -> yes
+[] @> bar(1, 2)	 -> no
+[] @< bar(1, 2)	 -> yes
+[] @>= bar(1, 2)	 -> no
+[] @=< bar(1, 2)	 -> yes
+[] @> bar(1)	 -> no
+[] @< bar(1)	 -> yes
+[] @>= bar(1)	 -> no
+[] @=< bar(1)	 -> yes
+[] @> [1|2]	 -> no
+[] @< [1|2]	 -> yes
+[] @>= [1|2]	 -> no
+[] @=< [1|2]	 -> yes
+[] @> []	 -> no
+[] @< []	 -> no
+[] @>= []	 -> yes
+[] @=< []	 -> yes
+[1,2] @> 123	 -> yes
+[1,2] @< 123	 -> no
+[1,2] @>= 123	 -> yes
+[1,2] @=< 123	 -> no
+[1,2] @> 456	 -> yes
+[1,2] @< 456	 -> no
+[1,2] @>= 456	 -> yes
+[1,2] @=< 456	 -> no
+[1,2] @> 1.23	 -> yes
+[1,2] @< 1.23	 -> no
+[1,2] @>= 1.23	 -> yes
+[1,2] @=< 1.23	 -> no
+[1,2] @> 4.56	 -> yes
+[1,2] @< 4.56	 -> no
+[1,2] @>= 4.56	 -> yes
+[1,2] @=< 4.56	 -> no
+[1,2] @> _0	 -> yes
+[1,2] @< _0	 -> no
+[1,2] @>= _0	 -> yes
+[1,2] @=< _0	 -> no
+[1,2] @> _1	 -> yes
+[1,2] @< _1	 -> no
+[1,2] @>= _1	 -> yes
+[1,2] @=< _1	 -> no
+[1,2] @> abc	 -> yes
+[1,2] @< abc	 -> no
+[1,2] @>= abc	 -> yes
+[1,2] @=< abc	 -> no
+[1,2] @> def	 -> yes
+[1,2] @< def	 -> no
+[1,2] @>= def	 -> yes
+[1,2] @=< def	 -> no
+[1,2] @> ab	 -> yes
+[1,2] @< ab	 -> no
+[1,2] @>= ab	 -> yes
+[1,2] @=< ab	 -> no
+[1,2] @> abc	 -> yes
+[1,2] @< abc	 -> no
+[1,2] @>= abc	 -> yes
+[1,2] @=< abc	 -> no
+[1,2] @> []	 -> yes
+[1,2] @< []	 -> no
+[1,2] @>= []	 -> yes
+[1,2] @=< []	 -> no
+[1,2] @> [1,2]	 -> no
+[1,2] @< [1,2]	 -> no
+[1,2] @>= [1,2]	 -> yes
+[1,2] @=< [1,2]	 -> yes
+[1,2] @> [4,-1]	 -> no
+[1,2] @< [4,-1]	 -> yes
+[1,2] @>= [4,-1]	 -> no
+[1,2] @=< [4,-1]	 -> yes
+[1,2] @> foo(_2, b)	 -> no
+[1,2] @< foo(_2, b)	 -> yes
+[1,2] @>= foo(_2, b)	 -> no
+[1,2] @=< foo(_2, b)	 -> yes
+[1,2] @> bar(_3, b)	 -> no
+[1,2] @< bar(_3, b)	 -> yes
+[1,2] @>= bar(_3, b)	 -> no
+[1,2] @=< bar(_3, b)	 -> yes
+[1,2] @> bar(1, 2)	 -> no
+[1,2] @< bar(1, 2)	 -> yes
+[1,2] @>= bar(1, 2)	 -> no
+[1,2] @=< bar(1, 2)	 -> yes
+[1,2] @> bar(1)	 -> yes
+[1,2] @< bar(1)	 -> no
+[1,2] @>= bar(1)	 -> yes
+[1,2] @=< bar(1)	 -> no
+[1,2] @> [1|2]	 -> yes
+[1,2] @< [1|2]	 -> no
+[1,2] @>= [1|2]	 -> yes
+[1,2] @=< [1|2]	 -> no
+[1,2] @> []	 -> yes
+[1,2] @< []	 -> no
+[1,2] @>= []	 -> yes
+[1,2] @=< []	 -> no
+[4,-1] @> 123	 -> yes
+[4,-1] @< 123	 -> no
+[4,-1] @>= 123	 -> yes
+[4,-1] @=< 123	 -> no
+[4,-1] @> 456	 -> yes
+[4,-1] @< 456	 -> no
+[4,-1] @>= 456	 -> yes
+[4,-1] @=< 456	 -> no
+[4,-1] @> 1.23	 -> yes
+[4,-1] @< 1.23	 -> no
+[4,-1] @>= 1.23	 -> yes
+[4,-1] @=< 1.23	 -> no
+[4,-1] @> 4.56	 -> yes
+[4,-1] @< 4.56	 -> no
+[4,-1] @>= 4.56	 -> yes
+[4,-1] @=< 4.56	 -> no
+[4,-1] @> _0	 -> yes
+[4,-1] @< _0	 -> no
+[4,-1] @>= _0	 -> yes
+[4,-1] @=< _0	 -> no
+[4,-1] @> _1	 -> yes
+[4,-1] @< _1	 -> no
+[4,-1] @>= _1	 -> yes
+[4,-1] @=< _1	 -> no
+[4,-1] @> abc	 -> yes
+[4,-1] @< abc	 -> no
+[4,-1] @>= abc	 -> yes
+[4,-1] @=< abc	 -> no
+[4,-1] @> def	 -> yes
+[4,-1] @< def	 -> no
+[4,-1] @>= def	 -> yes
+[4,-1] @=< def	 -> no
+[4,-1] @> ab	 -> yes
+[4,-1] @< ab	 -> no
+[4,-1] @>= ab	 -> yes
+[4,-1] @=< ab	 -> no
+[4,-1] @> abc	 -> yes
+[4,-1] @< abc	 -> no
+[4,-1] @>= abc	 -> yes
+[4,-1] @=< abc	 -> no
+[4,-1] @> []	 -> yes
+[4,-1] @< []	 -> no
+[4,-1] @>= []	 -> yes
+[4,-1] @=< []	 -> no
+[4,-1] @> [1,2]	 -> yes
+[4,-1] @< [1,2]	 -> no
+[4,-1] @>= [1,2]	 -> yes
+[4,-1] @=< [1,2]	 -> no
+[4,-1] @> [4,-1]	 -> no
+[4,-1] @< [4,-1]	 -> no
+[4,-1] @>= [4,-1]	 -> yes
+[4,-1] @=< [4,-1]	 -> yes
+[4,-1] @> foo(_2, b)	 -> no
+[4,-1] @< foo(_2, b)	 -> yes
+[4,-1] @>= foo(_2, b)	 -> no
+[4,-1] @=< foo(_2, b)	 -> yes
+[4,-1] @> bar(_3, b)	 -> no
+[4,-1] @< bar(_3, b)	 -> yes
+[4,-1] @>= bar(_3, b)	 -> no
+[4,-1] @=< bar(_3, b)	 -> yes
+[4,-1] @> bar(1, 2)	 -> no
+[4,-1] @< bar(1, 2)	 -> yes
+[4,-1] @>= bar(1, 2)	 -> no
+[4,-1] @=< bar(1, 2)	 -> yes
+[4,-1] @> bar(1)	 -> yes
+[4,-1] @< bar(1)	 -> no
+[4,-1] @>= bar(1)	 -> yes
+[4,-1] @=< bar(1)	 -> no
+[4,-1] @> [1|2]	 -> yes
+[4,-1] @< [1|2]	 -> no
+[4,-1] @>= [1|2]	 -> yes
+[4,-1] @=< [1|2]	 -> no
+[4,-1] @> []	 -> yes
+[4,-1] @< []	 -> no
+[4,-1] @>= []	 -> yes
+[4,-1] @=< []	 -> no
+foo(_2, b) @> 123	 -> yes
+foo(_2, b) @< 123	 -> no
+foo(_2, b) @>= 123	 -> yes
+foo(_2, b) @=< 123	 -> no
+foo(_2, b) @> 456	 -> yes
+foo(_2, b) @< 456	 -> no
+foo(_2, b) @>= 456	 -> yes
+foo(_2, b) @=< 456	 -> no
+foo(_2, b) @> 1.23	 -> yes
+foo(_2, b) @< 1.23	 -> no
+foo(_2, b) @>= 1.23	 -> yes
+foo(_2, b) @=< 1.23	 -> no
+foo(_2, b) @> 4.56	 -> yes
+foo(_2, b) @< 4.56	 -> no
+foo(_2, b) @>= 4.56	 -> yes
+foo(_2, b) @=< 4.56	 -> no
+foo(_2, b) @> _0	 -> yes
+foo(_2, b) @< _0	 -> no
+foo(_2, b) @>= _0	 -> yes
+foo(_2, b) @=< _0	 -> no
+foo(_2, b) @> _1	 -> yes
+foo(_2, b) @< _1	 -> no
+foo(_2, b) @>= _1	 -> yes
+foo(_2, b) @=< _1	 -> no
+foo(_2, b) @> abc	 -> yes
+foo(_2, b) @< abc	 -> no
+foo(_2, b) @>= abc	 -> yes
+foo(_2, b) @=< abc	 -> no
+foo(_2, b) @> def	 -> yes
+foo(_2, b) @< def	 -> no
+foo(_2, b) @>= def	 -> yes
+foo(_2, b) @=< def	 -> no
+foo(_2, b) @> ab	 -> yes
+foo(_2, b) @< ab	 -> no
+foo(_2, b) @>= ab	 -> yes
+foo(_2, b) @=< ab	 -> no
+foo(_2, b) @> abc	 -> yes
+foo(_2, b) @< abc	 -> no
+foo(_2, b) @>= abc	 -> yes
+foo(_2, b) @=< abc	 -> no
+foo(_2, b) @> []	 -> yes
+foo(_2, b) @< []	 -> no
+foo(_2, b) @>= []	 -> yes
+foo(_2, b) @=< []	 -> no
+foo(_2, b) @> [1,2]	 -> yes
+foo(_2, b) @< [1,2]	 -> no
+foo(_2, b) @>= [1,2]	 -> yes
+foo(_2, b) @=< [1,2]	 -> no
+foo(_2, b) @> [4,-1]	 -> yes
+foo(_2, b) @< [4,-1]	 -> no
+foo(_2, b) @>= [4,-1]	 -> yes
+foo(_2, b) @=< [4,-1]	 -> no
+foo(_2, b) @> foo(_2, b)	 -> no
+foo(_2, b) @< foo(_2, b)	 -> no
+foo(_2, b) @>= foo(_2, b)	 -> yes
+foo(_2, b) @=< foo(_2, b)	 -> yes
+foo(_2, b) @> bar(_3, b)	 -> yes
+foo(_2, b) @< bar(_3, b)	 -> no
+foo(_2, b) @>= bar(_3, b)	 -> yes
+foo(_2, b) @=< bar(_3, b)	 -> no
+foo(_2, b) @> bar(1, 2)	 -> yes
+foo(_2, b) @< bar(1, 2)	 -> no
+foo(_2, b) @>= bar(1, 2)	 -> yes
+foo(_2, b) @=< bar(1, 2)	 -> no
+foo(_2, b) @> bar(1)	 -> yes
+foo(_2, b) @< bar(1)	 -> no
+foo(_2, b) @>= bar(1)	 -> yes
+foo(_2, b) @=< bar(1)	 -> no
+foo(_2, b) @> [1|2]	 -> yes
+foo(_2, b) @< [1|2]	 -> no
+foo(_2, b) @>= [1|2]	 -> yes
+foo(_2, b) @=< [1|2]	 -> no
+foo(_2, b) @> []	 -> yes
+foo(_2, b) @< []	 -> no
+foo(_2, b) @>= []	 -> yes
+foo(_2, b) @=< []	 -> no
+bar(_3, b) @> 123	 -> yes
+bar(_3, b) @< 123	 -> no
+bar(_3, b) @>= 123	 -> yes
+bar(_3, b) @=< 123	 -> no
+bar(_3, b) @> 456	 -> yes
+bar(_3, b) @< 456	 -> no
+bar(_3, b) @>= 456	 -> yes
+bar(_3, b) @=< 456	 -> no
+bar(_3, b) @> 1.23	 -> yes
+bar(_3, b) @< 1.23	 -> no
+bar(_3, b) @>= 1.23	 -> yes
+bar(_3, b) @=< 1.23	 -> no
+bar(_3, b) @> 4.56	 -> yes
+bar(_3, b) @< 4.56	 -> no
+bar(_3, b) @>= 4.56	 -> yes
+bar(_3, b) @=< 4.56	 -> no
+bar(_3, b) @> _0	 -> yes
+bar(_3, b) @< _0	 -> no
+bar(_3, b) @>= _0	 -> yes
+bar(_3, b) @=< _0	 -> no
+bar(_3, b) @> _1	 -> yes
+bar(_3, b) @< _1	 -> no
+bar(_3, b) @>= _1	 -> yes
+bar(_3, b) @=< _1	 -> no
+bar(_3, b) @> abc	 -> yes
+bar(_3, b) @< abc	 -> no
+bar(_3, b) @>= abc	 -> yes
+bar(_3, b) @=< abc	 -> no
+bar(_3, b) @> def	 -> yes
+bar(_3, b) @< def	 -> no
+bar(_3, b) @>= def	 -> yes
+bar(_3, b) @=< def	 -> no
+bar(_3, b) @> ab	 -> yes
+bar(_3, b) @< ab	 -> no
+bar(_3, b) @>= ab	 -> yes
+bar(_3, b) @=< ab	 -> no
+bar(_3, b) @> abc	 -> yes
+bar(_3, b) @< abc	 -> no
+bar(_3, b) @>= abc	 -> yes
+bar(_3, b) @=< abc	 -> no
+bar(_3, b) @> []	 -> yes
+bar(_3, b) @< []	 -> no
+bar(_3, b) @>= []	 -> yes
+bar(_3, b) @=< []	 -> no
+bar(_3, b) @> [1,2]	 -> yes
+bar(_3, b) @< [1,2]	 -> no
+bar(_3, b) @>= [1,2]	 -> yes
+bar(_3, b) @=< [1,2]	 -> no
+bar(_3, b) @> [4,-1]	 -> yes
+bar(_3, b) @< [4,-1]	 -> no
+bar(_3, b) @>= [4,-1]	 -> yes
+bar(_3, b) @=< [4,-1]	 -> no
+bar(_3, b) @> foo(_2, b)	 -> no
+bar(_3, b) @< foo(_2, b)	 -> yes
+bar(_3, b) @>= foo(_2, b)	 -> no
+bar(_3, b) @=< foo(_2, b)	 -> yes
+bar(_3, b) @> bar(_3, b)	 -> no
+bar(_3, b) @< bar(_3, b)	 -> no
+bar(_3, b) @>= bar(_3, b)	 -> yes
+bar(_3, b) @=< bar(_3, b)	 -> yes
+bar(_3, b) @> bar(1, 2)	 -> no
+bar(_3, b) @< bar(1, 2)	 -> yes
+bar(_3, b) @>= bar(1, 2)	 -> no
+bar(_3, b) @=< bar(1, 2)	 -> yes
+bar(_3, b) @> bar(1)	 -> yes
+bar(_3, b) @< bar(1)	 -> no
+bar(_3, b) @>= bar(1)	 -> yes
+bar(_3, b) @=< bar(1)	 -> no
+bar(_3, b) @> [1|2]	 -> yes
+bar(_3, b) @< [1|2]	 -> no
+bar(_3, b) @>= [1|2]	 -> yes
+bar(_3, b) @=< [1|2]	 -> no
+bar(_3, b) @> []	 -> yes
+bar(_3, b) @< []	 -> no
+bar(_3, b) @>= []	 -> yes
+bar(_3, b) @=< []	 -> no
+bar(1, 2) @> 123	 -> yes
+bar(1, 2) @< 123	 -> no
+bar(1, 2) @>= 123	 -> yes
+bar(1, 2) @=< 123	 -> no
+bar(1, 2) @> 456	 -> yes
+bar(1, 2) @< 456	 -> no
+bar(1, 2) @>= 456	 -> yes
+bar(1, 2) @=< 456	 -> no
+bar(1, 2) @> 1.23	 -> yes
+bar(1, 2) @< 1.23	 -> no
+bar(1, 2) @>= 1.23	 -> yes
+bar(1, 2) @=< 1.23	 -> no
+bar(1, 2) @> 4.56	 -> yes
+bar(1, 2) @< 4.56	 -> no
+bar(1, 2) @>= 4.56	 -> yes
+bar(1, 2) @=< 4.56	 -> no
+bar(1, 2) @> _0	 -> yes
+bar(1, 2) @< _0	 -> no
+bar(1, 2) @>= _0	 -> yes
+bar(1, 2) @=< _0	 -> no
+bar(1, 2) @> _1	 -> yes
+bar(1, 2) @< _1	 -> no
+bar(1, 2) @>= _1	 -> yes
+bar(1, 2) @=< _1	 -> no
+bar(1, 2) @> abc	 -> yes
+bar(1, 2) @< abc	 -> no
+bar(1, 2) @>= abc	 -> yes
+bar(1, 2) @=< abc	 -> no
+bar(1, 2) @> def	 -> yes
+bar(1, 2) @< def	 -> no
+bar(1, 2) @>= def	 -> yes
+bar(1, 2) @=< def	 -> no
+bar(1, 2) @> ab	 -> yes
+bar(1, 2) @< ab	 -> no
+bar(1, 2) @>= ab	 -> yes
+bar(1, 2) @=< ab	 -> no
+bar(1, 2) @> abc	 -> yes
+bar(1, 2) @< abc	 -> no
+bar(1, 2) @>= abc	 -> yes
+bar(1, 2) @=< abc	 -> no
+bar(1, 2) @> []	 -> yes
+bar(1, 2) @< []	 -> no
+bar(1, 2) @>= []	 -> yes
+bar(1, 2) @=< []	 -> no
+bar(1, 2) @> [1,2]	 -> yes
+bar(1, 2) @< [1,2]	 -> no
+bar(1, 2) @>= [1,2]	 -> yes
+bar(1, 2) @=< [1,2]	 -> no
+bar(1, 2) @> [4,-1]	 -> yes
+bar(1, 2) @< [4,-1]	 -> no
+bar(1, 2) @>= [4,-1]	 -> yes
+bar(1, 2) @=< [4,-1]	 -> no
+bar(1, 2) @> foo(_2, b)	 -> no
+bar(1, 2) @< foo(_2, b)	 -> yes
+bar(1, 2) @>= foo(_2, b)	 -> no
+bar(1, 2) @=< foo(_2, b)	 -> yes
+bar(1, 2) @> bar(_3, b)	 -> yes
+bar(1, 2) @< bar(_3, b)	 -> no
+bar(1, 2) @>= bar(_3, b)	 -> yes
+bar(1, 2) @=< bar(_3, b)	 -> no
+bar(1, 2) @> bar(1, 2)	 -> no
+bar(1, 2) @< bar(1, 2)	 -> no
+bar(1, 2) @>= bar(1, 2)	 -> yes
+bar(1, 2) @=< bar(1, 2)	 -> yes
+bar(1, 2) @> bar(1)	 -> yes
+bar(1, 2) @< bar(1)	 -> no
+bar(1, 2) @>= bar(1)	 -> yes
+bar(1, 2) @=< bar(1)	 -> no
+bar(1, 2) @> [1|2]	 -> yes
+bar(1, 2) @< [1|2]	 -> no
+bar(1, 2) @>= [1|2]	 -> yes
+bar(1, 2) @=< [1|2]	 -> no
+bar(1, 2) @> []	 -> yes
+bar(1, 2) @< []	 -> no
+bar(1, 2) @>= []	 -> yes
+bar(1, 2) @=< []	 -> no
+bar(1) @> 123	 -> yes
+bar(1) @< 123	 -> no
+bar(1) @>= 123	 -> yes
+bar(1) @=< 123	 -> no
+bar(1) @> 456	 -> yes
+bar(1) @< 456	 -> no
+bar(1) @>= 456	 -> yes
+bar(1) @=< 456	 -> no
+bar(1) @> 1.23	 -> yes
+bar(1) @< 1.23	 -> no
+bar(1) @>= 1.23	 -> yes
+bar(1) @=< 1.23	 -> no
+bar(1) @> 4.56	 -> yes
+bar(1) @< 4.56	 -> no
+bar(1) @>= 4.56	 -> yes
+bar(1) @=< 4.56	 -> no
+bar(1) @> _0	 -> yes
+bar(1) @< _0	 -> no
+bar(1) @>= _0	 -> yes
+bar(1) @=< _0	 -> no
+bar(1) @> _1	 -> yes
+bar(1) @< _1	 -> no
+bar(1) @>= _1	 -> yes
+bar(1) @=< _1	 -> no
+bar(1) @> abc	 -> yes
+bar(1) @< abc	 -> no
+bar(1) @>= abc	 -> yes
+bar(1) @=< abc	 -> no
+bar(1) @> def	 -> yes
+bar(1) @< def	 -> no
+bar(1) @>= def	 -> yes
+bar(1) @=< def	 -> no
+bar(1) @> ab	 -> yes
+bar(1) @< ab	 -> no
+bar(1) @>= ab	 -> yes
+bar(1) @=< ab	 -> no
+bar(1) @> abc	 -> yes
+bar(1) @< abc	 -> no
+bar(1) @>= abc	 -> yes
+bar(1) @=< abc	 -> no
+bar(1) @> []	 -> yes
+bar(1) @< []	 -> no
+bar(1) @>= []	 -> yes
+bar(1) @=< []	 -> no
+bar(1) @> [1,2]	 -> no
+bar(1) @< [1,2]	 -> yes
+bar(1) @>= [1,2]	 -> no
+bar(1) @=< [1,2]	 -> yes
+bar(1) @> [4,-1]	 -> no
+bar(1) @< [4,-1]	 -> yes
+bar(1) @>= [4,-1]	 -> no
+bar(1) @=< [4,-1]	 -> yes
+bar(1) @> foo(_2, b)	 -> no
+bar(1) @< foo(_2, b)	 -> yes
+bar(1) @>= foo(_2, b)	 -> no
+bar(1) @=< foo(_2, b)	 -> yes
+bar(1) @> bar(_3, b)	 -> no
+bar(1) @< bar(_3, b)	 -> yes
+bar(1) @>= bar(_3, b)	 -> no
+bar(1) @=< bar(_3, b)	 -> yes
+bar(1) @> bar(1, 2)	 -> no
+bar(1) @< bar(1, 2)	 -> yes
+bar(1) @>= bar(1, 2)	 -> no
+bar(1) @=< bar(1, 2)	 -> yes
+bar(1) @> bar(1)	 -> no
+bar(1) @< bar(1)	 -> no
+bar(1) @>= bar(1)	 -> yes
+bar(1) @=< bar(1)	 -> yes
+bar(1) @> [1|2]	 -> no
+bar(1) @< [1|2]	 -> yes
+bar(1) @>= [1|2]	 -> no
+bar(1) @=< [1|2]	 -> yes
+bar(1) @> []	 -> yes
+bar(1) @< []	 -> no
+bar(1) @>= []	 -> yes
+bar(1) @=< []	 -> no
+[1|2] @> 123	 -> yes
+[1|2] @< 123	 -> no
+[1|2] @>= 123	 -> yes
+[1|2] @=< 123	 -> no
+[1|2] @> 456	 -> yes
+[1|2] @< 456	 -> no
+[1|2] @>= 456	 -> yes
+[1|2] @=< 456	 -> no
+[1|2] @> 1.23	 -> yes
+[1|2] @< 1.23	 -> no
+[1|2] @>= 1.23	 -> yes
+[1|2] @=< 1.23	 -> no
+[1|2] @> 4.56	 -> yes
+[1|2] @< 4.56	 -> no
+[1|2] @>= 4.56	 -> yes
+[1|2] @=< 4.56	 -> no
+[1|2] @> _0	 -> yes
+[1|2] @< _0	 -> no
+[1|2] @>= _0	 -> yes
+[1|2] @=< _0	 -> no
+[1|2] @> _1	 -> yes
+[1|2] @< _1	 -> no
+[1|2] @>= _1	 -> yes
+[1|2] @=< _1	 -> no
+[1|2] @> abc	 -> yes
+[1|2] @< abc	 -> no
+[1|2] @>= abc	 -> yes
+[1|2] @=< abc	 -> no
+[1|2] @> def	 -> yes
+[1|2] @< def	 -> no
+[1|2] @>= def	 -> yes
+[1|2] @=< def	 -> no
+[1|2] @> ab	 -> yes
+[1|2] @< ab	 -> no
+[1|2] @>= ab	 -> yes
+[1|2] @=< ab	 -> no
+[1|2] @> abc	 -> yes
+[1|2] @< abc	 -> no
+[1|2] @>= abc	 -> yes
+[1|2] @=< abc	 -> no
+[1|2] @> []	 -> yes
+[1|2] @< []	 -> no
+[1|2] @>= []	 -> yes
+[1|2] @=< []	 -> no
+[1|2] @> [1,2]	 -> no
+[1|2] @< [1,2]	 -> yes
+[1|2] @>= [1,2]	 -> no
+[1|2] @=< [1,2]	 -> yes
+[1|2] @> [4,-1]	 -> no
+[1|2] @< [4,-1]	 -> yes
+[1|2] @>= [4,-1]	 -> no
+[1|2] @=< [4,-1]	 -> yes
+[1|2] @> foo(_2, b)	 -> no
+[1|2] @< foo(_2, b)	 -> yes
+[1|2] @>= foo(_2, b)	 -> no
+[1|2] @=< foo(_2, b)	 -> yes
+[1|2] @> bar(_3, b)	 -> no
+[1|2] @< bar(_3, b)	 -> yes
+[1|2] @>= bar(_3, b)	 -> no
+[1|2] @=< bar(_3, b)	 -> yes
+[1|2] @> bar(1, 2)	 -> no
+[1|2] @< bar(1, 2)	 -> yes
+[1|2] @>= bar(1, 2)	 -> no
+[1|2] @=< bar(1, 2)	 -> yes
+[1|2] @> bar(1)	 -> yes
+[1|2] @< bar(1)	 -> no
+[1|2] @>= bar(1)	 -> yes
+[1|2] @=< bar(1)	 -> no
+[1|2] @> [1|2]	 -> no
+[1|2] @< [1|2]	 -> no
+[1|2] @>= [1|2]	 -> yes
+[1|2] @=< [1|2]	 -> yes
+[1|2] @> []	 -> yes
+[1|2] @< []	 -> no
+[1|2] @>= []	 -> yes
+[1|2] @=< []	 -> no
+[] @> 123	 -> yes
+[] @< 123	 -> no
+[] @>= 123	 -> yes
+[] @=< 123	 -> no
+[] @> 456	 -> yes
+[] @< 456	 -> no
+[] @>= 456	 -> yes
+[] @=< 456	 -> no
+[] @> 1.23	 -> yes
+[] @< 1.23	 -> no
+[] @>= 1.23	 -> yes
+[] @=< 1.23	 -> no
+[] @> 4.56	 -> yes
+[] @< 4.56	 -> no
+[] @>= 4.56	 -> yes
+[] @=< 4.56	 -> no
+[] @> _0	 -> yes
+[] @< _0	 -> no
+[] @>= _0	 -> yes
+[] @=< _0	 -> no
+[] @> _1	 -> yes
+[] @< _1	 -> no
+[] @>= _1	 -> yes
+[] @=< _1	 -> no
+[] @> abc	 -> no
+[] @< abc	 -> yes
+[] @>= abc	 -> no
+[] @=< abc	 -> yes
+[] @> def	 -> no
+[] @< def	 -> yes
+[] @>= def	 -> no
+[] @=< def	 -> yes
+[] @> ab	 -> no
+[] @< ab	 -> yes
+[] @>= ab	 -> no
+[] @=< ab	 -> yes
+[] @> abc	 -> no
+[] @< abc	 -> yes
+[] @>= abc	 -> no
+[] @=< abc	 -> yes
+[] @> []	 -> no
+[] @< []	 -> no
+[] @>= []	 -> yes
+[] @=< []	 -> yes
+[] @> [1,2]	 -> no
+[] @< [1,2]	 -> yes
+[] @>= [1,2]	 -> no
+[] @=< [1,2]	 -> yes
+[] @> [4,-1]	 -> no
+[] @< [4,-1]	 -> yes
+[] @>= [4,-1]	 -> no
+[] @=< [4,-1]	 -> yes
+[] @> foo(_2, b)	 -> no
+[] @< foo(_2, b)	 -> yes
+[] @>= foo(_2, b)	 -> no
+[] @=< foo(_2, b)	 -> yes
+[] @> bar(_3, b)	 -> no
+[] @< bar(_3, b)	 -> yes
+[] @>= bar(_3, b)	 -> no
+[] @=< bar(_3, b)	 -> yes
+[] @> bar(1, 2)	 -> no
+[] @< bar(1, 2)	 -> yes
+[] @>= bar(1, 2)	 -> no
+[] @=< bar(1, 2)	 -> yes
+[] @> bar(1)	 -> no
+[] @< bar(1)	 -> yes
+[] @>= bar(1)	 -> no
+[] @=< bar(1)	 -> yes
+[] @> [1|2]	 -> no
+[] @< [1|2]	 -> yes
+[] @>= [1|2]	 -> no
+[] @=< [1|2]	 -> yes
+[] @> []	 -> no
+[] @< []	 -> no
+[] @>= []	 -> yes
+[] @=< []	 -> yes

@@ -1,0 +1,202 @@
+#!/bin/bash
+### wrapper script for pc/pi
+#
+# usage: qp [OPTION ...] FILENAME ARGUMENT ...
+
+
+## Change these to your liking: ############################################
+
+pc_prefix=
+include_path=.
+optflags="-O1 -fomit-frame-pointer"
+cc=gcc
+cachedir="${HOME}/.qp"
+# set this one if you don't want to set PC_LIBRARY_DIR globally
+#PC_LIBRARY_DIR=...
+
+############################################################################
+
+set -e
+
+if test -z "$1"; then
+    exec ${pc_prefix}pi
+fi
+
+pc_options=
+c_options=
+library_dir="$PC_LIBRARY_DIR"
+pc_sourcefile=
+ofile=
+pp=
+force=
+dontrun=
+
+function compute_md5() {
+    if test `uname` == Darwin; then
+	hashcode=`md5 -q "$1"`
+    else
+	hashcode=`md5sum "${1}" | sed -e 's/^\([a-f0-9]\+\).*$/\1/'`
+    fi
+}
+
+function usage() {
+    echo "usage: qp [OPTION ...] [FILENAME ARGUMENT ...]"
+    echo
+    echo "  -help             show this text"
+    echo "  -version          show version and exit"
+    echo "  -v                show clauses are they are compiled"
+    echo "  -i                show intermediate code instead of generating C"
+    echo "  -o FILENAME       override output file name (default: <SOURCE_FILE>.c)"
+    echo "                    and omit running executable"
+    echo "  -compress-facts   compress blocks of facts with ground arguments"
+    echo "  -xref             write cross-referencing information instead of"
+    echo "                    compiling program"
+    echo "  -xrefall          like -xref, but for all included libraries"
+    echo "  -n                ignore PC_LIBRARY_DIR"
+    echo "  -c                compile but do not run"
+    echo "  -C OPTION         pass OPTION to the C compiler"
+    echo "  -O0               compile C code without any optimizations"
+    echo "  -g                enable debug-information and call-tracing"
+    echo "  -H                read source program from stdin"
+    echo "  -f                force recompilation"
+    echo "  -purge [FILENAME ...]  delete cached executables for given programs"
+    echo "  -key [FILENAME]   list cached executables for given programs"
+    echo "  -pp PROGRAM       run PROGRAM as preprocessor"
+    echo
+    echo "  Other options and files ending in *.o or *.c are passed directly"
+    echo "  to the C compiler."
+}
+
+while test -n "$1"; do
+    case "$1" in
+	-h|-help|--help)
+	    usage
+	    exit;;
+	-version)
+	    exec ${pc_prefix}pc -version;;
+	-c)
+	    dontrun=1
+	    shift;;
+	-g)
+	    optflags=
+	    c_options="${c_options} -g"
+	    shift;;
+	-C)
+	    shift
+	    c_options="${c_options} $1"
+	    shift;;
+	-xref|-i|-xrefall)
+	    xref=$1
+	    shift;;
+	-o) 
+	    shift
+	    ofile="$1"
+	    shift;;
+	-f)
+	    force=1
+	    shift;;
+	-purge)
+	    shift
+	    test -d "${cachedir}" || exit
+	    if test -z "$1"; then
+		rm -f "${cachedir}"/*
+	    else
+		while test -n "$1"; do
+		    compute_md5 "${1}"
+		    rm -f "${cachedir}/${hashcode}"
+		    shift
+		done
+	    fi
+	    exit;;
+	-key)
+	    shift
+	    test -d "${cachedir}" || exit
+	    if test -z "$1"; then
+		ls "${cachedir}"
+	    else
+		while test -n "$1"; do
+		    compute_md5 ${1}
+		    if test -e "${cachedir}/${hashcode}"; then
+			echo ${hashcode}
+		    fi
+		    shift
+		done
+	    fi
+	    exit;;	    
+	-pp)
+	    shift
+	    pp="$1"
+	    shift;;
+	-O0)
+	    optflags=
+	    shift;;
+	-compress-facts)
+	    pc_options="${pc_options} $1"
+	    shift;;
+	-n)
+	    pc_options="${pc_options} $1"
+	    optflags="${optflags} -Ilib"
+	    shift;;
+	-H)
+	    tmp1=`mktemp --tmpdir qp-XXXXXX`
+	    pc_sourcefile="${tmp1}.pl"
+	    cat >${pc_sourcefile}
+	    shift;;
+	-*|*.o|*.c)
+	    c_options="${c_options} $1"
+	    shift;;
+	*)
+	    pc_sourcefile="$1"
+	    shift
+	    break;;
+    esac
+done
+
+test -n "${xref}" && exec ${pc_prefix}pc ${xref} ${pc_options} ${pc_sourcefile}
+
+if test \! -d "${cachedir}"; then
+    mkdir "${cachedir}"
+fi
+
+compute_md5 "${pc_sourcefile}"
+
+if test -z "${hashcode}"; then
+    echo "invalid source file: ${pc_sourcefile}" 1>&2
+    exit 1
+fi
+
+if test -n "$force"; then
+    rm -f "${cachedir}/${hashcode}"
+fi
+
+if test \! -x "${cachedir}/${hashcode}"; then
+    if test -n "${pp}"; then
+	tmp1=`mktemp --tmpdir qp-pp-XXXXXX`
+	newfile="${TMP}.pl"
+	"$pp" <"${pc_sourcefile}" >"${newfile}"
+	pc_sourcefile="${newfile}"
+    fi
+
+    if test -n "${library_dir}"; then
+	optflags="${optflags} -I${library_dir}"
+    fi
+
+    tmp1=`mktemp --tmpdir qp-XXXXXX`
+    cfile="${tmp1}.c"
+    PC_LIBRARY_DIR=${library_dir} ${pc_prefix}pc -q "${pc_sourcefile}" ${pc_options} \
+	-o "${cfile}"
+    "$cc" -std=gnu99 ${optflags} -fno-strict-aliasing -fwrapv \
+	-I${include_path} -I. "${cfile}" -o "${cachedir}/${hashcode}" \
+	-lm -lrt ${c_options} 
+    rm -f "${cfile}"
+
+    if test -n "${pp}"; then
+	rm -f "${newfile}"
+    fi
+fi
+
+if test -n "$ofile"; then
+    cp "${cachedir}/${hashcode}" "$ofile"
+elif test -z "$dontrun"; then
+    exec "${cachedir}/${hashcode}" "$@"
+fi

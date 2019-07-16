@@ -1,0 +1,14 @@
+current_input:
+tty(true)
+file_no(0)
+current_input:
+position(51)
+tty(false)
+file_no(1)
+file:
+position(0)
+tty(false)
+file_no(?)
+file_name(tests/0121-streamprops.pl)
+input
+mode(read)

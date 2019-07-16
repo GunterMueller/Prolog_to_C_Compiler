@@ -1,0 +1,2 @@
+:- initialization foo.
+foo :- true.

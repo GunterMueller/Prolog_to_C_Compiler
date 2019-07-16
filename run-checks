@@ -1,0 +1,54 @@
+#!/usr/bin/env tclsh
+### run all tests with given options
+
+
+set pc "./pc"
+set check_options ""
+
+for {set i 0} {$i < $argc} {incr i} {
+    switch -glob [lindex $argv $i] {
+	-pc { 
+	    incr i
+	    set pc [lindex $argv $i]
+	}
+	-* {
+	    lappend check_options [lindex $argv $i]
+	}
+    }
+}
+
+set files [lsort -dictionary [glob {tests/[0-9]*.pl}]]
+set ok 0
+set not_ok 0
+
+exec mkdir -p tmp
+
+foreach test $files {
+    set testname [file tail [file rootname $test]]
+    set bindfile [file rootname $test].bind
+    set skip 0
+    puts "$pc $check_options $test"
+
+    if {[file exists $bindfile]} {
+	if {[catch {exec ./pb -q $bindfile -o tmp/$testname >@ stdout} result]} {
+	    puts stderr $result
+	    set skip 1
+	    incr not_ok
+	}
+    }
+
+    if {!$skip} {
+	if {[catch {eval exec ./check -pc $pc $check_options $test >@ stdout} result]} {
+	    puts stderr $result
+	    incr not_ok
+	} else {
+	    incr ok
+	}
+
+	if {[file exists $bindfile]} {
+	    exec rm -f ${bindfile}.*
+	}
+    }
+}
+
+exit $not_ok

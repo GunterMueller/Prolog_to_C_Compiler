@@ -1,0 +1,19 @@
+#!/bin/bash
+### updates .expected files for listed tests
+#
+# usage: update-test-output TESTNUM ...
+
+set -e
+
+for x in "$@"; do
+    printf -v INDEX "%04d" $x
+    file=`ls tmp/${INDEX}-*.out`
+
+    if ls tests/${INDEX}-*.expected 2>/dev/null; then
+	cp -v $file tests/${INDEX}-*.expected
+    elif ls tests/${INDEX}-*.expected-fail 2>/dev/null; then
+	cp -v $file tests/${INDEX}-*.expected-fail
+    else
+	echo "${INDEX} has no expected output"
+    fi
+done

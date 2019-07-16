@@ -1,0 +1,16 @@
+main :-
+	foreign_call(db_create('foo', 3001, DB)),
+	foreign_call(db_record(DB, 1, 'bar', 123, _)),
+	foreign_call(db_record(DB, 1, 'bar', this(is, a, "term"), _)),
+	foreign_call(db_record(DB, 1, 'baz', [X,Y,X], _)),
+	foreign_call(db_find(DB, 'bar', REF)),
+	foreign_call(db_ref(REF, X)),
+	display(X), nl,
+	foreign_call(db_next(REF, REF2)),
+	foreign_call(db_ref(REF2, Y)),
+	display(Y), nl,
+	\+foreign_call(db_next(REF2, _)),
+	foreign_call(db_find(DB, 'baz', REF3)),
+	foreign_call(db_ref(REF3, Z)),
+	display(Z), nl,
+	\+foreign_call(db_find(DB, yo, _)).

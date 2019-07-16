@@ -1,0 +1,4 @@
+#!/bin/sh
+
+xname=`basename $1 .c`
+exec gcc -std=gnu99 -I. -Ilib "$1" -g -o $xname -lm -lrt

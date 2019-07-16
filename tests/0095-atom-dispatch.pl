@@ -1,0 +1,32 @@
+main :-
+	foo(1, 2),
+	foo(a, b),
+	foo(c, c),
+	foo(d, d),
+	foo(e, e),
+	foo(f, f),
+	foo(g, g),
+	foo(h, h),
+	foo(i, i),
+	foo(j, j),
+	foo(k, k),
+	foo(m, m),
+	foo(X, 1),
+	foo(bar, yo).
+
+foo(0, 1).
+foo(1, 2).
+foo(a, b).
+foo(c, c).
+foo(d, d).
+foo(e, e).
+foo(f, f).
+foo(g, g).
+foo(h, h).
+foo(i, i).
+foo(j, j).
+foo(k, k).
+foo(l, l).
+foo(m, m).
+foo(q, 99).
+foo(YO, yo).

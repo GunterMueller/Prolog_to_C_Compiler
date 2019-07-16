@@ -1,0 +1,30 @@
+diff --git a/assemble.pl b/assemble.pl
+index 097c0b0..5228ff6 100644
+--- a/assemble.pl
++++ b/assemble.pl
+@@ -12,6 +12,7 @@ assemble_file(FILE, STATE) :-
+ 	gen('#define INIT_GOAL ', MMAIN, '$0\n'),
+ 	assemble_global_variables(0, N),
+ 	gen('ENTRY_POINT{\n'),
++	assemble_label_map,
+ 	gen('global_variable_counter=', N, ';\n'),
+ 	gen('BOILERPLATE;{\n'),
+ 	assemble_instructions(S1),
+@@ -19,6 +20,17 @@ assemble_file(FILE, STATE) :-
+ 	generate_trailer,
+ 	told.
+ 
++assemble_label_map :-
++	gen('static LABELMAP label_map[]={'),
++	recorded(code, enter(N, A, _)),
++	recorded(defined, N/A),
++	mangle_name(N, MN),
++	gen('{"', N, '",', A, ',&&'),
++	gen(MN, '$', A, '},'),
++	fail.
++assemble_label_map :-
++	gen(',{NULL,0,NULL}};\n').
++
+ assemble_global_variables(I, N) :-
+ 	recorded(global_variables, NAME, REF),
+ 	erase(REF),

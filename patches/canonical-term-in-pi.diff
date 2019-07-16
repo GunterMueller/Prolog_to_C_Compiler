@@ -1,0 +1,23 @@
+diff --git a/pi.pl b/pi.pl
+index bd1dd1c..22b858c 100644
+--- a/pi.pl
++++ b/pi.pl
+@@ -3,6 +3,7 @@
+ 
+ :- include('lib/interp.pl').
+ :- include('lib/dcg.pl').
++:- include('lib/canon.pl').
+ 
+ main :-
+ 	get_library_dir(DIR),
+@@ -57,7 +58,9 @@ skip_line :-
+ 
+ show_variables([]) :- !.
+ show_variables([NAME=X|MORE]) :-
+-	nl, display(NAME), display(' = '), writeq(X),
++	nl, display(NAME), display(' = '),
++	canonical_term(X, _, XP),
++	writeq(XP),
+ 	show_variables(MORE).
+ 
+ report_exception(EXN) :-
